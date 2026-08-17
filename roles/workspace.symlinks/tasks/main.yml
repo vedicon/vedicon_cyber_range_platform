@@ -14,11 +14,11 @@
 # Requires: deployer.repos (git repos cloned), workspace.init (directories exist)
 #
 # Symlinks created:
-#   - range42-ansible_roles-debug-devkit/secrets → config_dir/secrets
-#   - range42-playbooks/scenarios/SCENARIO/secrets → config_dir/secrets
-#   - config_dir/scenario → range42-playbooks/scenarios/SCENARIO
+#   - vedicon-ansible_roles-debug-devkit/secrets → config_dir/secrets
+#   - vedicon-vedicon_playbook/scenarios/SCENARIO/secrets → config_dir/secrets
+#   - config_dir/scenario → vedicon-vedicon_playbook/scenarios/SCENARIO
 #
-# Context switching + SSH key management are handled by range42-context
+# Context switching + SSH key management are handled by vedicon-context
 # (shell function sourced from .zshrc, deployed by deployer.bootstrap).
 # workspace_utils.sh and unlock-sshkeys.sh have been decommissioned.
 #

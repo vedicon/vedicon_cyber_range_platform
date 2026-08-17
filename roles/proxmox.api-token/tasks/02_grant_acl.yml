@@ -1,7 +1,7 @@
 ---
 # proxmox api-token - grant administrator acl on / for the api user
 #
-# Administrator on / gives full Proxmox API access — required for range42
+# Administrator on / gives full Proxmox API access — required for vedicon
 # to create and manage VMs, networks, and storage via the API.
 # Scope is intentionally / (root) to avoid per-datastore permission complexity.
 #

@@ -1,12 +1,12 @@
 ---
-# deployer repos - clone range42 repositories
+# deployer repos - clone vedicon repositories
 #
 # 6 repos cloned into DEPLOYER_CLI__DST_GIT_DIR
 # supports GIT_BRANCH override (force update if != main)
 #
 # source: configure.deployer-cli/tasks/05_git.yml (lines 17-59)
 
-- name: DEPLOYER REPOS - CLONE RANGE42 REPOSITORIES
+- name: DEPLOYER REPOS - CLONE vedicon REPOSITORIES
   ansible.builtin.git:
     repo: "{{ item.repo }}"
     dest: "{{ DEPLOYER_CLI__DST_GIT_DIR }}/{{ item.name }}"
@@ -16,17 +16,17 @@
   become: true
   become_user: "{{ DEPLOYER_CLI_USER }}"
   loop:
-    - { name: range42,
-        repo: "https://github.com/range42/range42.git" }
-    - { name: range42-ansible_roles-proxmox_controller,
-        repo: "https://github.com/range42/range42-ansible_roles-proxmox_controller.git" }
-    - { name: range42-catalog,
+    - { name: vedicon,
+        repo: "https://github.com/vedicon/vedicon_cyber_range_platform.git" }
+    - { name: vedicon-ansible_roles-proxmox_controller,
+        repo: "https://github.com/range42/ansible_roles-proxmox_controller.git" }
+    - { name: vedicon-catalog,
         repo: "https://github.com/range42/range42-catalog.git" }
-    - { name: range42-playbooks,
+    - { name: vedicon-vedicon_playbook,
         repo: "https://github.com/range42/range42-playbooks.git" }
-    - { name: range42-ansible_roles-debug-devkit,
-        repo: "https://github.com/range42/range42-ansible_roles-debug-devkit.git" }
-    - { name: range42-deployer-ui,
+    - { name: vedicon-ansible_roles-debug-devkit,
+        repo: "https://github.com/range42/ansible_roles-debug-devkit.git" }
+    - { name: vedicon-deployer-ui,
         repo: "https://github.com/range42/range42-deployer-ui.git" }
-    - { name: range42-backend-api,
+    - { name: vedicon-backend-api,
         repo: "https://github.com/range42/range42-backend-api.git" }

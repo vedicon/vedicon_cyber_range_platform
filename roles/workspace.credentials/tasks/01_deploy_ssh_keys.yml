@@ -3,7 +3,7 @@
 #
 # copies keys to two locations:
 #   1. config_dir/ssh_keys/ (backup in workspace)
-#   2. ~/.ssh/range42/CODENAME-SCENARIO/{backend,jump,student}_keys/ (for ssh client)
+#   2. ~/.ssh/vedicon/CODENAME-SCENARIO/{backend,jump,student}_keys/ (for ssh client)
 #
 # source: configure.deployer-cli/tasks/07_02_deploy_ssh_keys.yml
 

@@ -1,7 +1,7 @@
 ---
 # credentials vault - render vault file from template (cleartext, before encryption)
 #
-# the template produces a YAML file with all secrets needed by the playbooks
+# the template produces a YAML file with all secrets needed by the vedicon_playbook
 # maps WAZUH_PASSWORD → infrastructure_wazuh_admin_password
 #
 # consumes facts set by credentials.generate:

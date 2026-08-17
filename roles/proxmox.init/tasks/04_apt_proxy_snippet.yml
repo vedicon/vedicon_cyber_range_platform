@@ -2,7 +2,7 @@
 # proxmox init - write apt proxy cloud-init snippet on Proxmox host (optional)
 #
 # When apt_proxy_url is non-empty:
-#   - writes /var/lib/vz/snippets/range42-apt-proxy.yaml on Proxmox
+#   - writes /var/lib/vz/snippets/vedicon-apt-proxy.yaml on Proxmox
 #   - this snippet is referenced by VM templates via `qm set --cicustom vendor=...`
 #     in scenarios that opt-in (see <scenario>/01_init_proxmox/templates/ubuntu_noble/_apply_apt_proxy.yml)
 #
@@ -26,28 +26,28 @@
       # only http is proxified — see deployer.bootstrap/00_apt_proxy.yml for rationale
       apt:
         http_proxy: "{{ apt_proxy_url }}"
-    dest: "/tmp/range42-apt-proxy.yaml"
+    dest: "/tmp/vedicon-apt-proxy.yaml"
     mode: "0644"
   when: apt_proxy_url is defined and (apt_proxy_url | length) > 0
 
 - name: PROXMOX INIT - UPLOAD APT PROXY SNIPPET TO PROXMOX
   ansible.builtin.shell: >
-    scp /tmp/range42-apt-proxy.yaml
-    root@{{ INFRASTRUCTURE_PROXMOX_ADDRESS }}:/var/lib/vz/snippets/range42-apt-proxy.yaml &&
+    scp /tmp/vedicon-apt-proxy.yaml
+    root@{{ INFRASTRUCTURE_PROXMOX_ADDRESS }}:/var/lib/vz/snippets/vedicon-apt-proxy.yaml &&
     ssh root@{{ INFRASTRUCTURE_PROXMOX_ADDRESS }}
-    "chmod 644 /var/lib/vz/snippets/range42-apt-proxy.yaml"
+    "chmod 644 /var/lib/vz/snippets/vedicon-apt-proxy.yaml"
   when: apt_proxy_url is defined and (apt_proxy_url | length) > 0
 
 - name: PROXMOX INIT - CLEAN UP LOCAL TEMP SNIPPET
   ansible.builtin.file:
-    path: "/tmp/range42-apt-proxy.yaml"
+    path: "/tmp/vedicon-apt-proxy.yaml"
     state: absent
   when: apt_proxy_url is defined and (apt_proxy_url | length) > 0
 
 - name: PROXMOX INIT - REMOVE APT PROXY SNIPPET ON PROXMOX (apt_proxy_url unset)
   ansible.builtin.shell: >
     ssh root@{{ INFRASTRUCTURE_PROXMOX_ADDRESS }}
-    "rm -f /var/lib/vz/snippets/range42-apt-proxy.yaml"
+    "rm -f /var/lib/vz/snippets/vedicon-apt-proxy.yaml"
   when: apt_proxy_url is not defined or (apt_proxy_url | length) == 0
   changed_when: false
 
@@ -55,4 +55,4 @@
   ansible.builtin.debug:
     msg: |
       apt proxy: {{ apt_proxy_url if (apt_proxy_url is defined and (apt_proxy_url | length) > 0) else 'DISABLED (apt_proxy_url empty)' }}
-      snippet  : /var/lib/vz/snippets/range42-apt-proxy.yaml {{ '✓ created' if (apt_proxy_url is defined and (apt_proxy_url | length) > 0) else '✗ removed' }}
+      snippet  : /var/lib/vz/snippets/vedicon-apt-proxy.yaml {{ '✓ created' if (apt_proxy_url is defined and (apt_proxy_url | length) > 0) else '✗ removed' }}

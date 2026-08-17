@@ -27,6 +27,6 @@
 - import_tasks: ./02_locale.yml
 - import_tasks: ./03_shell.yml
 - import_tasks: ./04_dot_files.yml
-- import_tasks: ./05_range42_context.yml
+- import_tasks: ./05_vedicon_context.yml
 - import_tasks: ./06_ansible_config.yml
 - import_tasks: ./07_proxmox_ca_cert.yml  # install Proxmox CA cert into system trust store

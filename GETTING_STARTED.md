@@ -1,4 +1,4 @@
-# Getting started with range42
+# Getting started with vedicon
 
 > **⚠ Draft v0.1 - work in progress.**
 > This document aims to be the canonical onboarding guide. Screenshots and steps
@@ -33,7 +33,7 @@
     - [8a. Load your context](#8a-load-your-context)
     - [8b. Deploy the scenario VMs](#8b-deploy-the-scenario-vms)
 - [What you can do after deploy](#what-you-can-do-after-deploy)
-  - [Using range42-context](#using-range42-context)
+  - [Using vedicon-context](#using-vedicon-context)
     - [List configured contexts](#list-configured-contexts)
     - [Use a configured context](#use-a-configured-context)
     - [Show the current context](#show-the-current-context)
@@ -51,7 +51,7 @@
     - [I lost my Proxmox root password](#i-lost-my-proxmox-root-password)
     - [I lost my SSH keys for the VMs](#i-lost-my-ssh-keys-for-the-vms)
     - [I want to back up everything](#i-want-to-back-up-everything)
-- [Updating range42](#updating-range42)
+- [Updating vedicon](#updating-vedicon)
 - [Troubleshooting](#troubleshooting)
 - [Project structure](#project-structure)
 - [Manual setup (advanced)](#manual-setup-advanced)
@@ -75,14 +75,14 @@ Think of it as a **starter kit** - a working network of VMs ready in ~20 minutes
 then yours to populate with whatever services, workloads, or training material
 you want on top.
 
-range42 ships 3 blank scenarios:
+vedicon ships 3 blank scenarios:
 - `blank_scenario_2_subnets` - 2 subnets, 4 VMs (this guide)
 - `blank_scenario_4_subnets` - 4 subnets, 16 VMs
 - `blank_scenario_6_subnets` - 6 subnets, 24 VMs
 
 For a full SIEM + CTF cyber range, see `demo_lab` instead (still a work in progress).
 
-All scenarios live in [range42-playbooks/scenarios](https://github.com/range42/range42-playbooks/tree/main/scenarios) - the list will grow over time. See [Extend the scenarios](#extend-the-scenarios) at the end of this guide for how to request new ones.
+All scenarios live in [vedicon-vedicon_playbook/scenarios](https://github.com/vedicon/vedicon_cyber_range_platform-vedicon_playbook/tree/main/scenarios) - the list will grow over time. See [Extend the scenarios](#extend-the-scenarios) at the end of this guide for how to request new ones.
 
 ### Prerequisites for this guide
 
@@ -96,7 +96,7 @@ When done, you'll have:
    ┌─────────────────────┐                     ┌──────────────────────────────────┐
    │   deployer-cli      │                     │           Proxmox VE             │
    │   (your machine)    │  ──── SSH/API ────▶ │          (ip_forward=1)          │
-   │   range42-context   │                     │                                  │
+   │   vedicon-context   │                     │                                  │
    └─────────────────────┘                     │  ┌────────┐                      │
                                                │  │ vmbr0  │  → internet (NAT)    │
                                                │  └────────┘                      │
@@ -143,7 +143,7 @@ deployer-cli  ──ssh──▶  Proxmox jump_user  ──ProxyJump──▶  b
 
 ### Network ports - operator → Proxmox
 
-The wizard and `range42-context` need these open from your operator machine to the Proxmox host:
+The wizard and `vedicon-context` need these open from your operator machine to the Proxmox host:
 
 | Port | Protocol | Used for |
 |------|----------|----------|
@@ -157,13 +157,13 @@ If you're behind a firewall, allow at least 22 + 8006.
 ### Optional — local apt proxy
 
 If you have a local apt cache (apt-cacher-ng, Squid, etc.), the wizard's
-**step 0** lets you provide its URL. When set, range42 plumbs the proxy through
+**step 0** lets you provide its URL. When set, vedicon plumbs the proxy through
 three layers automatically:
 
-- **deployer-cli** (`/etc/apt/apt.conf.d/00range42-proxy`) — applied by
+- **deployer-cli** (`/etc/apt/apt.conf.d/00vedicon-proxy`) — applied by
   `deployer.bootstrap` before any apt install
 - **Proxmox host** — a cloud-init snippet is dropped at
-  `/var/lib/vz/snippets/range42-apt-proxy.yaml` by `proxmox.init`
+  `/var/lib/vz/snippets/vedicon-apt-proxy.yaml` by `proxmox.init`
 - **lab VMs** — the snippet is attached as cloud-init `vendor-data` on every
   VM template (`qm set <id> --cicustom vendor=...`); all clones inherit the
   proxy at first boot
@@ -186,19 +186,19 @@ For each step you'll see:
 
 ### Step 0 - Clone the main repo
 
-You only need the `range42` repo locally — it contains the wizard. The wizard
-itself will clone the rest (playbooks, catalog, controller, devkit) on the
+You only need the `vedicon` repo locally — it contains the wizard. The wizard
+itself will clone the rest (vedicon_playbook, catalog, controller, devkit) on the
 deployer-cli during deploy.
 
 ```bash
 sudo apt-get update ; apt-get upgrade -y
 sudo apt-get install python3-venv git
-mkdir -p $HOME/range42 && cd $HOME/range42
-git clone https://github.com/range42/range42.git
+mkdir -p $HOME/vedicon && cd $HOME/vedicon
+git clone https://github.com/vedicon/vedicon_cyber_range_platform_cyber_range_platform.git
 ```
 
-> **Recommended:** keep the default paths (`$HOME/range42` for git repos,
-> `$HOME/range42.config` for workspaces). The wizard offers to change them
+> **Recommended:** keep the default paths (`$HOME/vedicon` for git repos,
+> `$HOME/vedicon.config` for workspaces). The wizard offers to change them
 > if you really need to, but the defaults are well-tested and many scripts /
 > configs reference them. **This is the only structural constraint** — the
 > rest of the wizard is fully configurable.
@@ -206,8 +206,8 @@ git clone https://github.com/range42/range42.git
 ### Step 1 - Launch the wizard (preflight)
 
 ```bash
-cd ~/range42/range42
-./range42-init.py
+cd ~/vedicon/vedicon
+./vedicon-init.py
 ```
 
 ![Step 1 - wizard launch](docs/img/step-01-launch.png)
@@ -231,8 +231,8 @@ fix command for you to run manually.
 **What you do:** review the install paths and confirm.
 
 The wizard asks where to put two things:
-- **range42 git repos** → default: `$HOME/range42/`
-- **range42 workspaces** (per-codename configs, secrets, SSH keys) → default: `$HOME/range42.config/`
+- **vedicon git repos** → default: `$HOME/vedicon/`
+- **vedicon workspaces** (per-codename configs, secrets, SSH keys) → default: `$HOME/vedicon.config/`
 
 **Recommended: keep the defaults.** Changing them is possible but it is one of
 the **rare elements we recommend not to modify** — many internal scripts,
@@ -242,12 +242,12 @@ can make troubleshooting harder.
 **Behind the scenes:**
 - The chosen paths are stored in the wizard config and propagated to:
   - `inventories/<codename>/group_vars/all/vars.yml`
-  - `~/range42.config/<codename>-<scenario>/sourced_range42.sh`
+  - `~/vedicon.config/<codename>-<scenario>/sourced_vedicon.sh`
   - SSH config templates, vault paths, devkit scripts
 
 ### Step 2 - Choose new or existing
 
-What you see at this step depends on whether you've already deployed range42 on this machine.
+What you see at this step depends on whether you've already deployed vedicon on this machine.
 
 **First-time setup** — no previous configuration is detected, the wizard goes straight to "new":
 
@@ -308,9 +308,9 @@ The wizard then prompts for the Proxmox **root password**.
 ![Step 4 - Proxmox root password](docs/img/step-04-root-password-proxmox.png)
 
 **What it's used for:**
-- Install the range42 root SSH key in `/root/.ssh/authorized_keys` (one-shot, via `sshpass`)
+- Install the vedicon root SSH key in `/root/.ssh/authorized_keys` (one-shot, via `sshpass`)
 - Create the `jump_user` Linux account on Proxmox
-- Create the `range42_api` PAM user + API token via `pveum`
+- Create the `vedicon_api` PAM user + API token via `pveum`
 - Configure Proxmox locale, NTP, IP forwarding, network bridges (`vmbr140-148`), NAT rules
 
 After this bootstrap, root SSH is no longer used — daily operations go through the `jump_user` and the API token (see [Why a `jump_user` and not just root?](#why-a-jump_user-and-not-just-root) below).
@@ -349,7 +349,7 @@ This is useful for fully air-gapped subnets (e.g., a sensitive forensic VM, an o
 
 #### Why bridges are pre-created
 
-By default, range42 **pre-creates all the bridges listed in the wizard** (`vmbr140` to `vmbr148`) on the Proxmox host as part of this step, even if your scenario only uses a few of them.
+By default, vedicon **pre-creates all the bridges listed in the wizard** (`vmbr140` to `vmbr148`) on the Proxmox host as part of this step, even if your scenario only uses a few of them.
 
 **Why:** it saves time on later deployments. Once the bridges exist, deploying any scenario (or adding a new one with more subnets) requires no Proxmox network reconfiguration — the wizard just clones VMs onto the already-existing bridges. The cost is minimal: an unused bridge is just a Linux interface with no traffic.
 
@@ -383,7 +383,7 @@ This step asks **where** the deployer-cli will run (location + user) and then la
 
 **What you do:** enter the IP / hostname where the deployer-cli will be configured.
 
-**By default, range42 deploys the deployer-cli on the same machine where you run the wizard** — so the default value is `127.0.0.1`. Most users keep this.
+**By default, vedicon deploys the deployer-cli on the same machine where you run the wizard** — so the default value is `127.0.0.1`. Most users keep this.
 
 If you want a dedicated deployer-cli VM (e.g., to manage multiple Proxmox infrastructures from one place, or to keep credentials off your laptop), enter that VM's IP instead. The VM must already exist and be reachable over SSH.
 
@@ -393,7 +393,7 @@ If you want a dedicated deployer-cli VM (e.g., to manage multiple Proxmox infras
 
 **What you do:** enter the Linux user that will own the workspace on the deployer-cli.
 
-If you kept `127.0.0.1` above, this is your current local user (typically what `whoami` returns). On a dedicated deployer-cli VM, this is the user that will hold `~/range42/`, `~/range42.config/`, `~/.ssh/range42/`, etc.
+If you kept `127.0.0.1` above, this is your current local user (typically what `whoami` returns). On a dedicated deployer-cli VM, this is the user that will hold `~/vedicon/`, `~/vedicon.config/`, `~/.ssh/vedicon/`, etc.
 
 The user must:
 - Already exist on the deployer-cli machine
@@ -416,7 +416,7 @@ If you abort here (Ctrl-C or "Cancel"), nothing has been touched on Proxmox or o
 
 After confirming, the wizard runs the full deployment automatically (~10-15 min).
 
-**Behind the scenes:** the wizard runs `ansible-playbook site.yml` which executes 3 playbooks in sequence.
+**Behind the scenes:** the wizard runs `ansible-playbook site.yml` which executes 3 vedicon_playbook in sequence.
 
 #### Playbook 01 - credentials.generate
 
@@ -439,8 +439,8 @@ After confirming, the wizard runs the full deployment automatically (~10-15 min)
 - Configure NTP
 
 **Proxmox actions (via API token, then via root SSH):**
-- Create `range42_api` PAM user
-- Generate `range42_api_token` token (auto-recovers if exists with wrong secret)
+- Create `vedicon_api` PAM user
+- Generate `vedicon_api_token` token (auto-recovers if exists with wrong secret)
 - Inject token secret into vault
 - Create bridges `vmbr140` to `vmbr148` via `pvesh`
 - Inject NAT rules per bridge (post-up/post-down iptables MASQUERADE)
@@ -449,12 +449,12 @@ After confirming, the wizard runs the full deployment automatically (~10-15 min)
 
 ##### Why a `jump_user` and not just root?
 
-You'll notice range42 creates a separate `jump_user` Linux account on Proxmox,
+You'll notice vedicon creates a separate `jump_user` Linux account on Proxmox,
 even though it already installed the root SSH key. Two reasons:
 
 1. **Separation of concerns.** Root is used **only once** during bootstrap
    (install the root key, create the jump user, set the API token). After that,
-   day-to-day operations (`range42-context use`, `ssh r42.<vm>`) use the API token
+   day-to-day operations (`vedicon-context use`, `ssh r42.<vm>`) use the API token
    and `jump_user`. Root SSH is no longer needed.
 
 2. **Reduced attack surface for ProxyJump.** A SSH connection through a `jump_user`
@@ -472,27 +472,27 @@ even though it already installed the root SSH key. Two reasons:
 - Install packages: `ansible`, `git`, `keychain`, `oh-my-zsh`, `zsh`, `vim`, etc.
 - Configure NTP and locale
 - Install dotfiles (vim, zsh)
-- Clone all 5 range42 repos to `~/range42/` (see table below)
-- Create workspace at `~/range42.config/<codename>-<scenario>/`
+- Clone all 5 vedicon repos to `~/vedicon/` (see table below)
+- Create workspace at `~/vedicon.config/<codename>-<scenario>/`
 - Upload SSH keys + vault from local machine
 - Create symlinks: `scenario →` (in workspace), `secrets →` (in playbook scenario dir)
 - Generate two SSH config files from J2 templates:
   - `~/.ssh/config` - adds `Include` for the next file
-  - `~/.ssh/config_range42-<codename>-<scenario>` - actual host entries
-- Inject `source ~/range42.config/range42-context.sh` into `.zshrc`
+  - `~/.ssh/config_vedicon-<codename>-<scenario>` - actual host entries
+- Inject `source ~/vedicon.config/vedicon-context.sh` into `.zshrc`
 - Set the active context to this codename + scenario
 
-After this, `range42-context use <codename> <scenario>` works.
+After this, `vedicon-context use <codename> <scenario>` works.
 
 ##### The 5 repos cloned on the deployer-cli
 
 | Repo | Purpose |
 |------|---------|
-| `range42` | Main repo. Wizard, 11 Ansible roles, 3 playbooks, the `range42-context` shell tool. |
-| `range42-playbooks` | Lab scenarios (demo_lab, blank_scenario_*). What gets deployed on the Proxmox VMs. |
-| `range42-catalog` | Reusable Ansible roles (firewalls, packages, dotfiles, wazuh, etc.) used by scenarios. |
-| `range42-ansible_roles-proxmox_controller` | Wraps the Proxmox API (create/clone/delete VMs, manage templates, networks). |
-| `range42-ansible_roles-debug-devkit` | Helper scripts for snapshots, reverts, debugging individual VMs. |
+| `vedicon` | Main repo. Wizard, 11 Ansible roles, 3 vedicon_playbook, the `vedicon-context` shell tool. |
+| `vedicon-vedicon_playbook` | Lab scenarios (demo_lab, blank_scenario_*). What gets deployed on the Proxmox VMs. |
+| `vedicon-catalog` | Reusable Ansible roles (firewalls, packages, dotfiles, wazuh, etc.) used by scenarios. |
+| `vedicon-ansible_roles-proxmox_controller` | Wraps the Proxmox API (create/clone/delete VMs, manage templates, networks). |
+| `vedicon-ansible_roles-debug-devkit` | Helper scripts for snapshots, reverts, debugging individual VMs. |
 
 ### Step 8 - Deploy the scenario itself
 
@@ -503,23 +503,23 @@ This isn't a wizard step - you run it manually after the wizard finishes.
 Open a new terminal (or `source ~/.zshrc` in the current one), then load the workspace you just created:
 
 ```bash
-range42-context use YOUR_CODENAME_INFRASTRUCTURE blank_scenario_2_subnets
+vedicon-context use YOUR_CODENAME_INFRASTRUCTURE blank_scenario_2_subnets
 ```
 
-You should see `range42-context` switch into the workspace, with output like this:
+You should see `vedicon-context` switch into the workspace, with output like this:
 
 ```
 ----[ switching to px-testing-blank_scenario_2_subnets ]----
 
     ➜ commented all active Include lines
     ➜ uncommented Include for px-testing-blank_scenario_2_subnets
-    ➜ commented all sourced_range42.sh in .zshrc
-    ➜ uncommented sourced_range42.sh for px-testing-blank_scenario_2_subnets in .zshrc
-    ➜ sourced /home/grml/range42.config/px-testing-blank_scenario_2_subnets/sourced_range42.sh
+    ➜ commented all sourced_vedicon.sh in .zshrc
+    ➜ uncommented sourced_vedicon.sh for px-testing-blank_scenario_2_subnets in .zshrc
+    ➜ sourced /home/grml/vedicon.config/px-testing-blank_scenario_2_subnets/sourced_vedicon.sh
     ➜ updated secrets symlink in devkit → px-testing-blank_scenario_2_subnets
-    ➜ updated secrets symlink in playbooks → px-testing-blank_scenario_2_subnets
-    ➜ exported RANGE42_VAULT_PASSWORD_FILE=/home/grml/range42.config/px-testing-blank_scenario_2_subnets/secrets/vault_pass.txt
-    ➜ exported ANSIBLE_CONFIG=/home/grml/range42/range42/ansible.cfg
+    ➜ updated secrets symlink in vedicon_playbook → px-testing-blank_scenario_2_subnets
+    ➜ exported vedicon_VAULT_PASSWORD_FILE=/home/grml/vedicon.config/px-testing-blank_scenario_2_subnets/secrets/vault_pass.txt
+    ➜ exported ANSIBLE_CONFIG=/home/grml/vedicon/vedicon/ansible.cfg
     ✓ ssh keys reloaded (3 key(s) loaded)
 
     --- status : px-testing-blank_scenario_2_subnets ---
@@ -538,7 +538,7 @@ If every line of the status block ends with `ok`, the workspace is loaded correc
 #### 8b. Deploy the scenario VMs
 
 ```bash
-range42-context deploy    # ~15-20 min for first deploy
+vedicon-context deploy    # ~15-20 min for first deploy
 ```
 
 **Behind the scenes:**
@@ -565,23 +565,23 @@ You're now `alice@bs2-team-143-01`. From here you can ping the other 3 VMs
 (`192.168.143.201`, `192.168.144.200`, `192.168.144.201`) and reach the internet
 (NAT routes through `vmbr0`).
 
-> **Note:** range42 generated **both** the Ansible inventory and your `~/.ssh/config`
-> for you. SSH keys are loaded automatically when you run `range42-context use`.
+> **Note:** vedicon generated **both** the Ansible inventory and your `~/.ssh/config`
+> for you. SSH keys are loaded automatically when you run `vedicon-context use`.
 > No manual SSH key import or `-i keyfile` flag needed - just `ssh r42.<vm-name>`.
 
 > **Next:** read [What you can do after deploy](#what-you-can-do-after-deploy)
-> below for daily operations (range42-context, credentials, backup).
+> below for daily operations (vedicon-context, credentials, backup).
 
 ---
 
 ## What you can do after deploy
 
-### Using range42-context
+### Using vedicon-context
 
-`range42-context` is the daily-use tool. It manages workspaces, switches between
+`vedicon-context` is the daily-use tool. It manages workspaces, switches between
 infrastructures and scenarios, deploys/cleans up VMs, and reloads SSH keys.
 
-It's a **shell function** (zsh), sourced from `~/.zshrc`. So `range42-context use`
+It's a **shell function** (zsh), sourced from `~/.zshrc`. So `vedicon-context use`
 modifies the current shell - no need to restart, no need to spawn subshells.
 
 #### List configured contexts
@@ -589,15 +589,15 @@ modifies the current shell - no need to restart, no need to spawn subshells.
 > Lists all configured contexts (workspaces) on this deployer-cli, with the active one marked.
 
 A workspace is a `codename + scenario` combination. After step 7 above, you have one.
-After multiple `range42-context init` runs, you have several.
+After multiple `vedicon-context init` runs, you have several.
 
 ```
-$ range42-context list
+$ vedicon-context list
 
   ── available workspaces ──────────────────────────────────────
-  ● [1]  mylab-blank_scenario_2_subnets       range42-context use mylab blank_scenario_2_subnets
-  ○ [2]  mylab-demo_lab                       range42-context use mylab demo_lab
-  ○ [3]  otherlab-blank_scenario_4_subnets    range42-context use otherlab blank_scenario_4_subnets
+  ● [1]  mylab-blank_scenario_2_subnets       vedicon-context use mylab blank_scenario_2_subnets
+  ○ [2]  mylab-demo_lab                       vedicon-context use mylab demo_lab
+  ○ [3]  otherlab-blank_scenario_4_subnets    vedicon-context use otherlab blank_scenario_4_subnets
 ```
 
 The active workspace is marked `●`. Inactive workspaces are `○`. The right
@@ -609,24 +609,24 @@ column shows the exact command to switch to that workspace.
 > environment variables and prompt are all updated.
 
 ```
-$ range42-context use mylab demo_lab
+$ vedicon-context use mylab demo_lab
 
   ── switching context ────────────────────────────────────────
    ✓  workspace        : mylab-demo_lab
-   ✓  vault password   : ~/range42.config/mylab-demo_lab/secrets/vault_pass.txt
+   ✓  vault password   : ~/vedicon.config/mylab-demo_lab/secrets/vault_pass.txt
    ✓  ssh keys loaded  : 4 keys
-   ✓  ssh include      : ~/.ssh/config_range42-mylab-demo_lab
+   ✓  ssh include      : ~/.ssh/config_vedicon-mylab-demo_lab
    ✓  prompt updated   : [mylab/demo_lab]
 ```
 
-After this, all `range42-context` commands operate on the new workspace.
+After this, all `vedicon-context` commands operate on the new workspace.
 
 #### Show the current context
 
 > Shows which context is currently active in your shell.
 
 ```
-$ range42-context current
+$ vedicon-context current
 mylab-demo_lab
 ```
 
@@ -635,10 +635,10 @@ mylab-demo_lab
 Lists all hosts the active workspace will deploy:
 
 ```
-$ range42-context show-inventory
+$ vedicon-context show-inventory
 
 @all:
-  |--@range42_infrastructure:
+  |--@vedicon_infrastructure:
   |  |--@r42_admin:
   |  |  |--r42.admin-wazuh
   |  |  |--r42.admin-deployer-api-gateway
@@ -665,12 +665,12 @@ Useful for sanity-checking what would be deployed before running `deploy`.
 #### Try a single catalog element
 
 For fast iteration on a single deployable element (Docker compose / Makefile)
-from [range42-catalog](https://github.com/range42/range42-catalog) without
-rebuilding a full lab, range42 ships a disposable-VM mode :
+from [vedicon-catalog](https://github.com/vedicon/vedicon_cyber_range_platform-catalog) without
+rebuilding a full lab, vedicon ships a disposable-VM mode :
 
 ```bash
-range42-context catalog-try-list                # browse available elements
-range42-context catalog-try docker/_ctf/hello   # deploy + smoke-check one
+vedicon-context catalog-try-list                # browse available elements
+vedicon-context catalog-try docker/_ctf/hello   # deploy + smoke-check one
 ```
 
 `catalog-try` resolves the logical path, deploys the element on the
@@ -684,16 +684,16 @@ You can also bootstrap a fresh deployer-cli directly into this mode from your
 laptop :
 
 ```bash
-./range42-init.py --catalog-try docker/_ctf/hello
+./vedicon-init.py --catalog-try docker/_ctf/hello
 ```
 
 The wizard skips the scenario picker, forces `scenario=catalog_try`, and the
-final banner suggests the right `range42-context catalog-try <path>` to run.
+final banner suggests the right `vedicon-context catalog-try <path>` to run.
 
 #### SSH into deployed VMs
 
-`range42-context use` configures **two** things at once:
-- Ansible inventory (for `range42-context deploy`)
+`vedicon-context use` configures **two** things at once:
+- Ansible inventory (for `vedicon-context deploy`)
 - SSH config (for `ssh <hostname>` directly)
 
 So once a workspace is active, you can SSH into any deployed VM by name:
@@ -707,7 +707,7 @@ alice@admin-wazuh:~$
 ```
 
 The hostnames are defined in the auto-generated SSH config:
-`~/.ssh/config_range42-<codename>-<scenario>` (included from `~/.ssh/config`).
+`~/.ssh/config_vedicon-<codename>-<scenario>` (included from `~/.ssh/config`).
 
 VMs are on isolated bridges (vmbr143, vmbr144, etc.) - your operator machine
 has no direct route to them. SSH uses **ProxyJump** through the Proxmox host:
@@ -723,11 +723,11 @@ has no direct route to them. SSH uses **ProxyJump** through the Proxmox host:
    └─────────────────┘         └──────────────────────┘         └───────────────────────┘
 ```
 
-Both keys are loaded into your ssh-agent by `range42-context use`. If they
+Both keys are loaded into your ssh-agent by `vedicon-context use`. If they
 disappear (after reboot), reload them:
 
 ```bash
-range42-context ssh-reload
+vedicon-context ssh-reload
 ```
 
 #### Initialise a new context
@@ -735,10 +735,10 @@ range42-context ssh-reload
 Use the wizard to add a new scenario or a new Proxmox infrastructure:
 
 ```bash
-range42-context init
+vedicon-context init
 ```
 
-This launches `range42-init.py` again. From there you can:
+This launches `vedicon-init.py` again. From there you can:
 
 - **Add a scenario to an existing codename** → pick the codename in step 2,
   then change the scenario in step 6 (e.g., switch from `blank_scenario_2_subnets`
@@ -746,14 +746,14 @@ This launches `range42-init.py` again. From there you can:
 - **Add a new infrastructure (codename)** → pick "new" in step 2,
   enter a different codename in step 3
 
-After init completes, the new workspace appears in `range42-context list`.
+After init completes, the new workspace appears in `vedicon-context list`.
 
 ```
-$ range42-context list
+$ vedicon-context list
 
   ── available workspaces ──────────────────────────────────────
-  ● [1]  mylab-blank_scenario_2_subnets       range42-context use mylab blank_scenario_2_subnets
-  ○ [2]  mylab-demo_lab                       range42-context use mylab demo_lab    ← new
+  ● [1]  mylab-blank_scenario_2_subnets       vedicon-context use mylab blank_scenario_2_subnets
+  ○ [2]  mylab-demo_lab                       vedicon-context use mylab demo_lab    ← new
 ```
 
 #### Overwrite an existing configuration
@@ -763,7 +763,7 @@ changed credentials, etc.) — re-run the wizard and pick the existing config
 in step 2 instead of "new".
 
 ```bash
-range42-context init
+vedicon-context init
 ```
 
 ![Overwrite - existing config selection](docs/img/overwrite-01-existing.png)
@@ -774,7 +774,7 @@ from the existing config, so you only need to update what changed.
 
 > ⚠️ Overwriting a configuration **does not destroy deployed VMs**. It only
 > regenerates the local files (inventory, vault, SSH keys). If you also want
-> to clean up the running VMs, run `range42-context delete` afterwards (or
+> to clean up the running VMs, run `vedicon-context delete` afterwards (or
 > before, if the existing keys won't work anymore).
 
 You can also use this flow to:
@@ -786,10 +786,10 @@ You can also use this flow to:
 #### Deploy / undeploy
 
 ```bash
-range42-context deploy        # full deploy (templates + VMs + software)
-range42-context deploy-vms    # fast redeploy (skip templates)
-range42-context delete        # destroy everything + clean SSH known_hosts
-range42-context delete-vms    # destroy VMs only (keep templates)
+vedicon-context deploy        # full deploy (templates + VMs + software)
+vedicon-context deploy-vms    # fast redeploy (skip templates)
+vedicon-context delete        # destroy everything + clean SSH known_hosts
+vedicon-context delete-vms    # destroy VMs only (keep templates)
 ```
 
 #### Reload SSH keys
@@ -797,15 +797,15 @@ range42-context delete-vms    # destroy VMs only (keep templates)
 If your ssh-agent loses keys (after reboot, etc.):
 
 ```bash
-range42-context ssh-reload
+vedicon-context ssh-reload
 ```
 
 #### Full command list
 
 ```
-$ range42-context
+$ vedicon-context
 
-  ── range42-context ──────────────────────────────────────────
+  ── vedicon-context ──────────────────────────────────────────
    use <codename> <scenario>      switch active workspace
    list                           list available workspaces
    current                        show active workspace
@@ -822,14 +822,14 @@ $ range42-context
 
 ### Where credentials live
 
-range42 generates a lot of secrets at deploy time: SSH keys (4 of them), VM
+vedicon generates a lot of secrets at deploy time: SSH keys (4 of them), VM
 passwords, the Wazuh password, the Proxmox API token. They all live under
 your workspace, encrypted in an Ansible vault.
 
 #### Workspace layout
 
 ```
-~/range42.config/<codename>-<scenario>/
+~/vedicon.config/<codename>-<scenario>/
 ├── secrets/
 │   ├── default_vault.yml          ← encrypted vault (passwords, API token, etc.)
 │   ├── vault_pass.txt             ← password to decrypt the vault (chmod 600)
@@ -847,8 +847,8 @@ your workspace, encrypted in an Ansible vault.
 │       └── r42.<codename>-<scenario>-student-key_bob     ← student user on VMs
 ├── inventory/
 │   └── inventory_default.yml      ← ansible inventory (hosts + groups)
-├── sourced_range42.sh             ← env vars sourced by range42-context use
-└── scenario → ../../range42/range42-playbooks/scenarios/<scenario>/   ← symlink
+├── sourced_vedicon.sh             ← env vars sourced by vedicon-context use
+└── scenario → ../../vedicon/vedicon-vedicon_playbook/scenarios/<scenario>/   ← symlink
 ```
 
 #### Where is the vault password
@@ -856,15 +856,15 @@ your workspace, encrypted in an Ansible vault.
 It's in the workspace, in plain text:
 
 ```
-~/range42.config/<codename>-<scenario>/secrets/vault_pass.txt
+~/vedicon.config/<codename>-<scenario>/secrets/vault_pass.txt
 ```
 
 This file has `chmod 600` and is owned by your user. It exists by design -
-this is what allows `range42-context deploy` to run without prompting for the
+this is what allows `vedicon-context deploy` to run without prompting for the
 vault password every time.
 
 > ⚠️ This means **anyone with read access to your home directory can decrypt
-> the vault**. Don't share `~/range42.config/` or back it up to insecure storage.
+> the vault**. Don't share `~/vedicon.config/` or back it up to insecure storage.
 
 #### How to view the vault contents
 
@@ -875,7 +875,7 @@ token, and the SSH key passphrases (`ssh_passphrase_px_root`,
 with the active workspace loaded:
 
 ```bash
-range42-context show-vault
+vedicon-context show-vault
 ```
 
 This wraps `ansible-vault view` against the active workspace's
@@ -885,7 +885,7 @@ If you prefer working from the workspace directory directly, the helper
 scripts shipped in the workspace still work:
 
 ```bash
-cd ~/range42.config/<codename>-<scenario>/secrets/
+cd ~/vedicon.config/<codename>-<scenario>/secrets/
 ./vault.view.sh default_vault.yml
 ```
 
@@ -909,35 +909,35 @@ the vault**. View it:
 ```
 
 If the wizard didn't generate it (you provided your own), it's not stored
-anywhere by range42 - only the SSH root key was installed on Proxmox.
+anywhere by vedicon - only the SSH root key was installed on Proxmox.
 
 #### I lost my SSH keys for the VMs
 
-The keys live in `~/range42.config/<codename>-<scenario>/ssh_keys/`. As long as
+The keys live in `~/vedicon.config/<codename>-<scenario>/ssh_keys/`. As long as
 you have this directory, you have everything.
 
-If `range42-context use` complains about missing keys, run:
+If `vedicon-context use` complains about missing keys, run:
 
 ```bash
-range42-context ssh-reload
+vedicon-context ssh-reload
 ```
 
 If the keys themselves are physically deleted, the simplest recovery is to
 redeploy:
 
 ```bash
-range42-context delete
-range42-context deploy   # regenerates SSH keys + vault, recreates Proxmox config
+vedicon-context delete
+vedicon-context deploy   # regenerates SSH keys + vault, recreates Proxmox config
 ```
 
 This is destructive - your VMs will be recreated from scratch.
 
 #### I want to back up everything
 
-Use `range42-workspace export`:
+Use `vedicon-workspace export`:
 
 ```bash
-range42-workspace export <codename> <scenario>
+vedicon-workspace export <codename> <scenario>
 # → <codename>-<scenario>.r42.tar.gz  (includes secrets, ssh_keys, inventory)
 ```
 
@@ -945,59 +945,59 @@ Store this tarball somewhere safe (encrypted disk, password manager attachment,
 etc.). To restore on another machine:
 
 ```bash
-range42-workspace import <codename>-<scenario>.r42.tar.gz
-range42-context use <codename> <scenario>
+vedicon-workspace import <codename>-<scenario>.r42.tar.gz
+vedicon-context use <codename> <scenario>
 ```
 
 ---
 
-## Updating range42
+## Updating vedicon
 
-range42 lives in 5 git repos. To update everything to latest:
+vedicon lives in 5 git repos. To update everything to latest:
 
 ```bash
-range42-context init     # easiest - the wizard pulls all 5 repos before showing the menu
+vedicon-context init     # easiest - the wizard pulls all 5 repos before showing the menu
 ```
 
 Or manually:
 
 ```bash
-for repo in range42 range42-playbooks range42-catalog \
-            range42-ansible_roles-proxmox_controller \
-            range42-ansible_roles-debug-devkit; do
+for repo in vedicon vedicon-vedicon_playbook vedicon-catalog \
+            vedicon-ansible_roles-proxmox_controller \
+            vedicon-ansible_roles-debug-devkit; do
   echo "=== $repo ==="
-  cd ~/range42/$repo && git pull
+  cd ~/vedicon/$repo && git pull
 done
 ```
 
 After updating, you may want to redeploy to apply role/playbook changes:
 
 ```bash
-range42-context delete-vms      # keeps templates
-range42-context deploy-vms      # redeploy with new code (~5 min)
+vedicon-context delete-vms      # keeps templates
+vedicon-context deploy-vms      # redeploy with new code (~5 min)
 ```
 
-If a role under `~/range42/range42/roles/` changed (e.g., `deployer.bootstrap`),
-run the full `site.yml` again via `range42-context init` to rebuild the
+If a role under `~/vedicon/vedicon/roles/` changed (e.g., `deployer.bootstrap`),
+run the full `site.yml` again via `vedicon-context init` to rebuild the
 deployer-cli config.
 
 ---
 
 ## Troubleshooting
 
-### The fast way - use range42-context
+### The fast way - use vedicon-context
 
 Most issues with stale state (failed deploy, partial cleanup, IP/key conflicts)
-can be fixed by tearing down and redeploying. After `range42-context use <codename> <scenario>`:
+can be fixed by tearing down and redeploying. After `vedicon-context use <codename> <scenario>`:
 
 ```bash
 # full reset (deletes templates + VMs + SSH known_hosts, then redeploys)
-range42-context delete
-range42-context deploy
+vedicon-context delete
+vedicon-context deploy
 
 # faster reset (keeps templates, recreates VMs only)
-range42-context delete-vms
-range42-context deploy-vms
+vedicon-context delete-vms
+vedicon-context deploy-vms
 ```
 
 This handles 90% of issues automatically - start here before deep-diving.
@@ -1017,7 +1017,7 @@ The wizard couldn't reach `https://<address>:8006`. Verify manually with
 
 **Deploy fails on `vm_create` "already exists"**
 Templates (vm_id 9211-9248) exist from a previous deploy. The proxmox controller
-auto-skips them - just re-run. If the failure persists, run `range42-context delete`
+auto-skips them - just re-run. If the failure persists, run `vedicon-context delete`
 to remove leftover state.
 
 **SSH "REMOTE HOST IDENTIFICATION HAS CHANGED"**
@@ -1025,13 +1025,13 @@ The IP was previously used by a different VM with a different SSH host key.
 The `delete` and `delete-vms` commands handle this by running:
 
 ```bash
-~/range42/range42-playbooks/scenarios/blank_scenario_2_subnets/blank_scenario_2_subnets.reset.ssh_keys.sh
+~/vedicon/vedicon-vedicon_playbook/scenarios/blank_scenario_2_subnets/blank_scenario_2_subnets.reset.ssh_keys.sh
 ```
 
 You can run this script directly if you only want to reset known_hosts without redeploying.
 
 **Deploy fails on `chattr` errors during SSH key generation**
-Already fixed in current version. Pull latest from range42 repo. The fix removes
+Already fixed in current version. Pull latest from vedicon repo. The fix removes
 `attributes: ""` from `openssh_keypair` which was failing on virtio/qcow2 disks.
 
 **Vault corrupted or unable to decrypt**
@@ -1039,8 +1039,8 @@ The simplest recovery is to redeploy the VMs (the vault itself is regenerated
 during deploy, and the SSH keys it references are also regenerated):
 
 ```bash
-range42-context delete-vms
-range42-context deploy-vms
+vedicon-context delete-vms
+vedicon-context deploy-vms
 ```
 
 This keeps the Proxmox templates (no need to re-download cloud images) but
@@ -1060,14 +1060,14 @@ infrastructure (wazuh server + deployer platform on `vmbr142`). It's currently
 
 ## Project structure
 
-The `range42` repo (the one you cloned in step 0) is laid out as follows:
+The `vedicon` repo (the one you cloned in step 0) is laid out as follows:
 
 ```
-range42/
-├── range42-init.py           — setup wizard (Python/Textual TUI)
+vedicon/
+├── vedicon-init.py           — setup wizard (Python/Textual TUI)
 ├── ansible.cfg
-├── site.yml                  — runs all 3 playbooks in sequence
-├── playbooks/
+├── site.yml                  — runs all 3 vedicon_playbook in sequence
+├── vedicon_playbook/
 │   ├── 01_generate_credentials.yml
 │   ├── 02_configure_proxmox.yml
 │   └── 03_deploy_deployer_cli.yml
@@ -1077,8 +1077,8 @@ range42/
 └── config/                   — generated credentials (not committed)
 ```
 
-The other 4 repos (`range42-playbooks`, `range42-catalog`,
-`range42-ansible_roles-proxmox_controller`, `range42-ansible_roles-debug-devkit`)
+The other 4 repos (`vedicon-vedicon_playbook`, `vedicon-catalog`,
+`vedicon-ansible_roles-proxmox_controller`, `vedicon-ansible_roles-debug-devkit`)
 are cloned by the wizard onto the deployer-cli during the deploy. You don't
 need them on your operator machine.
 
@@ -1086,12 +1086,12 @@ need them on your operator machine.
 
 ## Manual setup (advanced)
 
-The wizard (`python3 range42-init.py`, covered in the [Walkthrough](#walkthrough---wizard-steps)
+The wizard (`python3 vedicon-init.py`, covered in the [Walkthrough](#walkthrough---wizard-steps)
 above) is the recommended path. The manual flow below exists for users who want
 to script the setup, integrate it in their own tooling, or simply understand
 exactly what gets executed.
 
-It runs the same 3 playbooks the wizard runs, in the same order, against an
+It runs the same 3 vedicon_playbook the wizard runs, in the same order, against an
 inventory you write by hand from the `inventories/example/` template.
 
 ```bash
@@ -1104,28 +1104,28 @@ cp -r inventories/example inventories/my-infra
 #    - inventories/my-infra/group_vars/demo_lab/vars.yml         (scenario settings)
 
 # 3. Generate credentials (SSH keys, vault, passwords) - runs locally
-ansible-playbook playbooks/01_generate_credentials.yml \
+ansible-playbook vedicon_playbook/01_generate_credentials.yml \
   -i inventories/my-infra/hosts.yml \
   -e @inventories/my-infra/group_vars/demo_lab/vars.yml \
   -e INFRASTRUCTURE_SCENARIO=demo_lab
 
 # 4. Configure Proxmox (root key install, jump_user, API token, bridges, NAT)
-ansible-playbook playbooks/02_configure_proxmox.yml \
+ansible-playbook vedicon_playbook/02_configure_proxmox.yml \
   -i inventories/my-infra/hosts.yml \
   -e @inventories/my-infra/group_vars/demo_lab/vars.yml \
   -e INFRASTRUCTURE_SCENARIO=demo_lab
 
-# 5. Deploy the deployer-cli (packages, repos, workspace, SSH config, range42-context)
-ansible-playbook playbooks/03_deploy_deployer_cli.yml \
+# 5. Deploy the deployer-cli (packages, repos, workspace, SSH config, vedicon-context)
+ansible-playbook vedicon_playbook/03_deploy_deployer_cli.yml \
   -i inventories/my-infra/hosts.yml \
   -e @inventories/my-infra/group_vars/demo_lab/vars.yml \
   -e INFRASTRUCTURE_SCENARIO=demo_lab \
   --vault-password-file ./config/my-infra-demo_lab/secrets/vault_pass.txt
 
 # 6. On the deployer-cli, use the workspace
-range42-context use my-infra demo_lab
-range42-context status
-range42-context deploy
+vedicon-context use my-infra demo_lab
+vedicon-context status
+vedicon-context deploy
 ```
 
 Note on `-e @...vars.yml`: this loads the scenario's group_vars as extra vars.
@@ -1146,13 +1146,13 @@ ansible-playbook site.yml \
 
 ## Extend the scenarios
 
-All deployable scenarios live in [range42-playbooks/scenarios](https://github.com/range42/range42-playbooks/tree/main/scenarios) - the list will grow over time.
+All deployable scenarios live in [vedicon-vedicon_playbook/scenarios](https://github.com/vedicon/vedicon_cyber_range_platform-vedicon_playbook/tree/main/scenarios) - the list will grow over time.
 
-The reusable building blocks (CVEs, misconfigured services, product setups, Ansible roles) live in the [range42-catalog](https://github.com/range42/range42-catalog) repository.
+The reusable building blocks (CVEs, misconfigured services, product setups, Ansible roles) live in the [vedicon-catalog](https://github.com/vedicon/vedicon_cyber_range_platform-catalog) repository.
 
-**Want a specific product, CVE or misconfiguration added?** Open an issue on the [range42-catalog](https://github.com/range42/range42-catalog/issues) repo - we centralise catalog requests there.
+**Want a specific product, CVE or misconfiguration added?** Open an issue on the [vedicon-catalog](https://github.com/vedicon/vedicon_cyber_range_platform-catalog/issues) repo - we centralise catalog requests there.
 
-**Found a bug or have a feature request for range42 itself?** Open an issue on the [range42](https://github.com/range42/range42/issues) repo (anything not related to the catalog goes here).
+**Found a bug or have a feature request for vedicon itself?** Open an issue on the [vedicon](https://github.com/vedicon/vedicon_cyber_range_platform/issues) repo (anything not related to the catalog goes here).
 
 We'll prioritise as fast as we can.
 
@@ -1166,9 +1166,9 @@ For full definitions, see [GLOSSARY.md](GLOSSARY.md).
 |------|---------|
 | **codename** (`INFRASTRUCTURE_CODENAME`) | A label identifying one Proxmox infrastructure (e.g., `mylab`, `production-px-01`). One codename = one Proxmox host or cluster. |
 | **scenario** (`INFRASTRUCTURE_SCENARIO`) | A lab definition (which VMs, which networks, which software). Examples: `demo_lab`, `blank_scenario_2_subnets`. One codename can host multiple scenarios. |
-| **workspace** | The combination `codename + scenario`. The fundamental unit of range42. Lives at `~/range42.config/<codename>-<scenario>/`. |
+| **workspace** | The combination `codename + scenario`. The fundamental unit of vedicon. Lives at `~/vedicon.config/<codename>-<scenario>/`. |
 | **vault** | An encrypted file (Ansible vault) containing all secrets for a workspace: VM passwords, Proxmox API token, etc. Decryption password is stored next to it in `vault_pass.txt`. |
-| **deployer-cli** | The machine where you run range42 commands. Can be your laptop or a dedicated VM. |
+| **deployer-cli** | The machine where you run vedicon commands. Can be your laptop or a dedicated VM. |
 | **jump host** | Proxmox itself, used as SSH gateway to reach VMs on isolated bridges. |
 
 ---
@@ -1176,4 +1176,4 @@ For full definitions, see [GLOSSARY.md](GLOSSARY.md).
 > **⚠ Draft v0.1 - work in progress.**
 > Screenshots are placeholders. Some flows may have changed since this was written.
 > Refer to the wizard text on screen as the source of truth.
-> Issues / corrections: open an issue on the range42 repo.
+> Issues / corrections: open an issue on the vedicon repo.

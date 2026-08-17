@@ -1,6 +1,6 @@
 ---
 ################################################################################
-# range42 — shared variables (all scenarios of this CODENAME)
+# vedicon — shared variables (all scenarios of this CODENAME)
 #
 # These variables are common to ALL scenarios running on the same
 # Proxmox infrastructure. They go here, not in the scenario-specific vars.
@@ -81,11 +81,11 @@ vm_net_virtio_bridge: "vmbr142"
 #
 # examples:
 #   proxmox_api_host: "192.168.1.100:8006"
-#   proxmox_api_user: "range42_api@pam"
-#   proxmox_api_token_id: "range42_api_token"
+#   proxmox_api_user: "vedicon_api@pam"
+#   proxmox_api_token_id: "vedicon_api_token"
 #
 proxmox_api_host: "{{ INFRASTRUCTURE_PROXMOX_ADDRESS }}:8006"
-proxmox_api_user: "range42_api@pam"
+proxmox_api_user: "vedicon_api@pam"
 proxmox_api_token_id: "r42_{{ INFRASTRUCTURE_CODENAME }}_{{ INFRASTRUCTURE_SCENARIO }}"
 # proxmox_api_token_secret → in vault.yml (secret)
 
@@ -116,7 +116,7 @@ jump_port: "22"
 
 #### DEPLOYER-CLI ####
 
-# The deployer-cli is the machine where you run the lab playbooks.
+# The deployer-cli is the machine where you run the lab vedicon_playbook.
 # It can be your laptop, a VM, or the same machine running Ansible.
 #
 # DEPLOYER_CLI_USER: the Linux user on that machine
@@ -131,16 +131,16 @@ DEPLOYER_CLI_USER: "your_deployer_cli_username"
 deployer_cli_ip: "127.0.0.1"
 deployer_cli_ssh_port: "22"
 
-# Where range42 git repos are cloned on the deployer-cli.
-# Default: ~/range42/
+# Where vedicon git repos are cloned on the deployer-cli.
+# Default: ~/vedicon/
 #
-DEPLOYER_CLI__DST_GIT_DIR: "/home/your_deployer_cli_username/range42/"
+DEPLOYER_CLI__DST_GIT_DIR: "/home/your_deployer_cli_username/vedicon/"
 
 # Where workspace configs are stored on the deployer-cli.
-# Default: ~/range42.config/
+# Default: ~/vedicon.config/
 # Each workspace is a subdirectory: <config_dir>/<codename>-<scenario>/
 #
-DEPLOYER_CLI__DST_CONFIG_BASE_DIR: "/home/your_deployer_cli_username/range42.config"
+DEPLOYER_CLI__DST_CONFIG_BASE_DIR: "/home/your_deployer_cli_username/vedicon.config"
 
 
 #### WORKSTATION (LOCAL) ####
@@ -154,7 +154,7 @@ ssh_client__dst_config_dir: "/home/your_deployer_cli_username/.ssh"
 
 #### GIT ####
 
-# Git branch to clone for all range42 repos.
+# Git branch to clone for all vedicon repos.
 # Use "main" unless you're testing a specific branch.
 #
 GIT_BRANCH: "main"
@@ -189,7 +189,7 @@ apt_proxy_url: ""
 #### APT MIRROR (OPTIONAL) ####
 
 # Managed by the wizard — do not edit manually.
-# Set via range42-init.py to deploy a local APT mirror VM automatically.
+# Set via vedicon-init.py to deploy a local APT mirror VM automatically.
 #
 # apt_mirror_airgapped: false = apt-cacher-ng (caching proxy)
 #                       true  = aptly (full offline mirror, ~200 GB)

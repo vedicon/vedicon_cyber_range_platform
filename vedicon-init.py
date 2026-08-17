@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-range42-init.py  —  interactive infrastructure setup  (Textual edition)
+vedicon-init.py  —  interactive infrastructure setup  (Textual edition)
 
   Install : pip install textual
-  Run     : python3 range42-init.py
+  Run     : python3 vedicon-init.py
 """
 
 import argparse, json, os, re, shlex, shutil, subprocess, ssl, sys, urllib.request
@@ -20,8 +20,8 @@ sys.path.insert(0, str(Path(__file__).parent.resolve()))
 #      apt install at end of __main__) which preserve sys.argv[1:]
 def _parse_cli():
     parser = argparse.ArgumentParser(
-        prog="range42-init.py",
-        description="range42 interactive infrastructure setup (Textual TUI)",
+        prog="vedicon-init.py",
+        description="vedicon interactive infrastructure setup (Textual TUI)",
     )
     parser.add_argument(
         "--catalog-try",
@@ -39,18 +39,18 @@ _CLI_ARGS = _parse_cli()
 
 
 # ── catalog-try path validation (Python port of bash _r42_catalog_resolve_path) ──
-# Best-effort : if range42-catalog is found locally, validate the path strictly.
+# Best-effort : if vedicon-catalog is found locally, validate the path strictly.
 # If not found, skip silently — the preflight stage clones the repos later, and
 # the actual catalog-try run happens on the deployer-cli (where the catalog IS
-# expected to be present) via `range42-context catalog-try <path>`.
+# expected to be present) via `vedicon-context catalog-try <path>`.
 
 def _find_catalog_root():
-    """Locate range42-catalog clone on this machine. Returns abs path or None."""
+    """Locate vedicon-catalog clone on this machine. Returns abs path or None."""
     candidates = [
-        os.environ.get("RANGE42_INVENTORY", ""),
-        os.path.join(os.environ.get("RANGE42_GITDIR__ROOT_DIR", ""), "range42-catalog"),
-        os.path.expanduser("~/range42/range42-catalog"),
-        str(Path(__file__).resolve().parent.parent / "range42-catalog"),
+        os.environ.get("vedicon_INVENTORY", ""),
+        os.path.join(os.environ.get("vedicon_GITDIR__ROOT_DIR", ""), "vedicon-catalog"),
+        os.path.expanduser("~/vedicon/vedicon-catalog"),
+        str(Path(__file__).resolve().parent.parent / "vedicon-catalog"),
     ]
     for c in candidates:
         if c and os.path.isdir(c):
@@ -61,7 +61,7 @@ def _find_catalog_root():
 def _validate_catalog_try_path(logical_path):
     """
     Resolve a logical catalog path like `docker/_ctf/hello` to an absolute path
-    under range42-catalog/. Mirrors the bash _r42_catalog_resolve_path logic :
+    under vedicon-catalog/. Mirrors the bash _r42_catalog_resolve_path logic :
     strip the numbered layer prefix (`03_container_layer/`), validate the final
     dir is a deployable element (compose.yml / docker-compose.yml / Makefile).
 
@@ -73,7 +73,7 @@ def _validate_catalog_try_path(logical_path):
     if not catalog_root:
         # warn explicitly so the operator knows validation was skipped — silent
         # skip would mask a typo until much later (on the deployer-cli side).
-        print("  [warn] range42-catalog not found locally - path validation deferred to deployer-cli",
+        print("  [warn] vedicon-catalog not found locally - path validation deferred to deployer-cli",
               file=sys.stderr)
         return True, ""  # catalog not cloned yet, skip validation
 
@@ -135,7 +135,7 @@ if _CLI_ARGS.catalog_try:
     if not _ok:
         # red [FAIL] marker (matches the shell-side _r42_print_fail visual style)
         print(f"\n  \033[1;31m[FAIL]\033[0m invalid --catalog-try path : {_msg}\n", file=sys.stderr)
-        print(f"  hint : the path is logical (e.g. docker/_ctf/hello), resolved under range42-catalog/", file=sys.stderr)
+        print(f"  hint : the path is logical (e.g. docker/_ctf/hello), resolved under vedicon-catalog/", file=sys.stderr)
         print(f"         the final directory must contain compose.yml, docker-compose.yml, or Makefile\n", file=sys.stderr)
         sys.exit(2)
 
@@ -159,21 +159,21 @@ try:
 
     # themes — hex-only, independent of terminal palette
     R42_THEMES = [
-        Theme(name="r42-solarized", dark=True,
-              primary="#268bd2", secondary="#2aa198", accent="#b58900",
-              warning="#cb4b16", error="#dc322f", success="#859900",
-              foreground="#839496", background="#002b36",
-              surface="#073642", panel="#073642", boost="#0d4a5a"),
-        Theme(name="r42-catppuccin", dark=True,
-              primary="#89b4fa", secondary="#94e2d5", accent="#f9e2af",
-              warning="#fab387", error="#f38ba8", success="#a6e3a1",
+        Theme(name="vedicon-theme", dark=True,
+              primary="#FA8B34", secondary="#2aa198", accent="#FA8B34",
+              warning="#cb4b16", error="#C00000", success="#538135",
               foreground="#cdd6f4", background="#1e1e2e",
               surface="#313244", panel="#45475a", boost="#585b70"),
-        Theme(name="r42-midnight", dark=True,
-              primary="#38bdf8", secondary="#2dd4bf", accent="#fbbf24",
-              warning="#fb923c", error="#f87171", success="#4ade80",
-              foreground="#94a3b8", background="#0f172a",
-              surface="#1e293b", panel="#334155", boost="#475569"),
+        Theme(name="vedicon-alt", dark=True,
+              primary="#FA8B34", secondary="#2aa198", accent="#FA8B34",
+              warning="#cb4b16", error="#C00000", success="#538135",
+              foreground="#cdd6f4", background="#1e1e2e",
+              surface="#313244", panel="#45475a", boost="#585b70"),
+        Theme(name="vedicon-alt2", dark=True,
+              primary="#FA8B34", secondary="#2aa198", accent="#FA8B34",
+              warning="#cb4b16", error="#C00000", success="#538135",
+              foreground="#cdd6f4", background="#1e1e2e",
+              surface="#313244", panel="#45475a", boost="#585b70"),
     ]
 except ImportError:
     # try auto-install in a local venv
@@ -202,7 +202,7 @@ except ImportError:
             print("  \033[1;31mFAIL\033[0m  python3-venv is not installed")
             print()
             print("  fix:  sudo apt-get install python3-venv")
-            print("  then: python3 range42-init.py")
+            print("  then: python3 vedicon-init.py")
             print()
             sys.exit(1)
         try:
@@ -214,7 +214,7 @@ except ImportError:
             print("  \033[1;31mFAIL\033[0m  could not create python venv")
             print()
             print("  fix:  sudo apt-get install python3-venv")
-            print("  then: python3 range42-init.py")
+            print("  then: python3 vedicon-init.py")
             print()
             sys.exit(1)
         # verify venv is healthy after creation
@@ -227,7 +227,7 @@ except ImportError:
             print("  \033[1;31mFAIL\033[0m  venv created but pip is broken (missing python3-venv?)")
             print()
             print("  fix:  sudo apt install python3-venv")
-            print("  then: python3 range42-init.py")
+            print("  then: python3 vedicon-init.py")
             print()
             sys.exit(1)
         print("  \033[1;33mINFO\033[0m  installing textual (pip install textual)...")
@@ -250,7 +250,7 @@ except ImportError:
         print()
         print("  Manual install:")
         print("    \033[36mpython3 -m venv .venv-wizard && .venv-wizard/bin/pip install textual\033[0m")
-        print("    \033[36m.venv-wizard/bin/python3 range42-init.py\033[0m")
+        print("    \033[36m.venv-wizard/bin/python3 vedicon-init.py\033[0m")
         sys.exit(1)
 
 from textual import work, on
@@ -260,18 +260,18 @@ from rich.text import Text
 SCRIPT_DIR  = Path(__file__).parent.resolve()
 INVENTORIES = SCRIPT_DIR / "inventories"
 EXAMPLE_DIR = INVENTORIES / "example"
-# range42-playbooks lives as a sibling of the range42 repo on the operator machine.
-# preflight auto-clones it if missing (see wizard/preflight.py:ensure_playbooks_repo).
-PLAYBOOKS_DIR = SCRIPT_DIR.parent / "range42-playbooks"
+# vedicon-vedicon_playbook lives as a sibling of the vedicon repo on the operator machine.
+# preflight auto-clones it if missing (see wizard/preflight.py:ensure_vedicon_playbook_repo).
+vedicon_playbook_DIR = SCRIPT_DIR.parent / "vedicon-vedicon_playbook"
 
 
 def list_deployable_scenarios():
     """
-    Return sorted list of scenario names in range42-playbooks/scenarios/ that
+    Return sorted list of scenario names in vedicon-vedicon_playbook/scenarios/ that
     have a complete templates/ dir (all 4 required template files present).
     Scenarios starting with '_' are treated as non-deployable placeholders.
     """
-    scenarios_dir = PLAYBOOKS_DIR / "scenarios"
+    scenarios_dir = vedicon_playbook_DIR / "scenarios"
     if not scenarios_dir.exists():
         return []
     out = []
@@ -286,7 +286,7 @@ def list_deployable_scenarios():
 # ── wizard cache (XDG-compliant, survives reboot) ─────────────────────────────
 # Used to remember non-sensitive wizard inputs across runs (e.g. last apt proxy URL).
 # Never store credentials, vault contents, or anything per-codename here.
-_WIZARD_CACHE_DIR  = os.path.expanduser("~/.cache/range42")
+_WIZARD_CACHE_DIR  = os.path.expanduser("~/.cache/vedicon")
 _WIZARD_CACHE_FILE = os.path.join(_WIZARD_CACHE_DIR, "wizard.json")
 
 
@@ -327,7 +327,7 @@ class _S:
     setup_mode      = "new"
     preflight_ok    = False
     deploy_now      = False
-    install_dir     = os.path.expanduser("~/range42")
+    install_dir     = os.path.expanduser("~/vedicon")
     nat_interface   = "vmbr0"
     apt_proxy_url         = _load_wizard_cache().get("apt_proxy_url", "")
     apt_mirror_enabled    = _load_wizard_cache().get("apt_mirror_enabled", False)
@@ -443,7 +443,7 @@ def sed_f(path, old, new):
 
 # ── CSS ────────────────────────────────────────────────────────────────────────
 CSS = """
-/* Uses $variables from RANGE42_THEME — independent of terminal palette */
+/* Uses $variables from vedicon_THEME — independent of terminal palette */
 
 Screen  { background: $background; color: $foreground; }
 
@@ -564,8 +564,8 @@ class Step(Widget):
     NEXT_CLASS = "-ok"
     SHOW_BACK  = True
 
-    def handle_next(self, app: "Range42"): pass
-    def handle_back(self, app: "Range42"): pass
+    def handle_next(self, app: "vedicon"): pass
+    def handle_back(self, app: "vedicon"): pass
 
 
 # ── step 0 — apt proxy (optional) ─────────────────────────────────────────────
@@ -782,16 +782,16 @@ class StepInstallPaths(Step):
 
     def _tree_text(self, git_dir):
         """Build a preview of the directory structure."""
-        cfg_dir = os.path.expanduser("~/range42.config")
+        cfg_dir = os.path.expanduser("~/vedicon.config")
         return (
             f"  {git_dir}/\n"
-            f"  ├── range42/                      main repo (this wizard)\n"
-            f"  ├── range42-playbooks/             scenarios + bundles\n"
-            f"  ├── range42-catalog/               ansible roles + docker stacks\n"
-            f"  ├── range42-ansible_roles-proxmox_controller/\n"
-            f"  ├── range42-ansible_roles-debug-devkit/\n"
-            f"  ├── range42-backend-api/\n"
-            f"  └── range42-deployer-ui/\n"
+            f"  ├── vedicon/                      main repo (this wizard)\n"
+            f"  ├── vedicon-vedicon_playbook/             scenarios + bundles\n"
+            f"  ├── vedicon-catalog/               ansible roles + docker stacks\n"
+            f"  ├── vedicon-ansible_roles-proxmox_controller/\n"
+            f"  ├── vedicon-ansible_roles-debug-devkit/\n"
+            f"  ├── vedicon-backend-api/\n"
+            f"  └── vedicon-deployer-ui/\n"
             f"\n"
             f"  {cfg_dir}/\n"
             f"  └── <codename>-<scenario>/         workspace (secrets, keys, inventory)\n"
@@ -801,9 +801,9 @@ class StepInstallPaths(Step):
         yield Label("◆  install paths", classes="title")
         yield Rule()
         yield Static(
-            "  Where should range42 repos be cloned on the deployer-cli?\n\n"
+            "  Where should vedicon repos be cloned on the deployer-cli?\n\n"
             "  Note: workspace config (secrets, keys, inventory) is always\n"
-            "  stored in ~/range42.config/ — this path cannot be changed.\n",
+            "  stored in ~/vedicon.config/ — this path cannot be changed.\n",
             classes="muted")
         yield Container(id="path-choices")
         yield Static("")
@@ -813,7 +813,7 @@ class StepInstallPaths(Step):
     def on_mount(self):
         lst = self.query_one("#path-choices")
         lst.mount(Button(
-            "  ◆  recommended  —  ~/range42  +  ~/range42.config",
+            "  ◆  recommended  —  ~/vedicon  +  ~/vedicon.config",
             id="p-recommended", classes="-ok"))
         lst.mount(Button(
             "  ↺  custom path",
@@ -823,7 +823,7 @@ class StepInstallPaths(Step):
 
     @on(Button.Pressed, "#p-recommended")
     def pick_recommended(self):
-        S.install_dir = os.path.expanduser("~/range42")
+        S.install_dir = os.path.expanduser("~/vedicon")
         self.query_one("#custom-inputs").display = False
         self.query_one("#path-preview", Static).update(
             self._tree_text(S.install_dir))
@@ -920,12 +920,12 @@ class StepWelcome(Step):
     SHOW_BACK = False  # very first step
 
     def compose(self) -> ComposeResult:
-        yield Label("◆  range42  —  setup wizard", classes="title")
+        yield Label("◆  vedicon  —  setup wizard", classes="title")
         yield Rule()
         yield Static("""\
-  Welcome to range42.
+  Welcome to vedicon.
 
-  range42 deploys reproducible cyber range labs on Proxmox via Ansible.
+  vedicon deploys reproducible cyber range labs on Proxmox via Ansible.
   This wizard configures the initial setup of a new lab environment.
 
   Steps:
@@ -956,7 +956,7 @@ class StepCodename(Step):
         yield Rule()
         yield Static(
             "  A short name that identifies your Proxmox server.\n"
-            "  Used everywhere in range42: directories, SSH config, key names.\n\n"
+            "  Used everywhere in vedicon: directories, SSH config, key names.\n\n"
             "  Letters, numbers, hyphens, underscores, dots. No spaces.\n"
             "  Examples: hv-lab-01, proxmox_home, my.server",
             classes="muted")
@@ -1248,7 +1248,7 @@ class StepScenario(Step):
             "  Which lab scenario to deploy on this infrastructure.\n\n"
             "  blank_scenario_2_subnets is the minimal lab (4 VMs on 2 subnets) — default.\n"
             "  demo_lab is the full cyber range with admin + student + vulnerable hosts.\n\n"
-            "  Pick from the list of deployable scenarios in range42-playbooks.",
+            "  Pick from the list of deployable scenarios in vedicon-vedicon_playbook.",
             classes="muted")
         yield Static("")
 
@@ -1270,7 +1270,7 @@ class StepScenario(Step):
         else:
             # defensive fallback — preflight should have caught this
             yield Static(
-                "  [FAIL] no deployable scenarios found in range42-playbooks.\n"
+                "  [FAIL] no deployable scenarios found in vedicon-vedicon_playbook.\n"
                 "  Re-run preflight to auto-clone the repo.",
                 classes="muted")
             yield Input(value=S.scenario, placeholder="blank_scenario_2_subnets", id="i-scenario")
@@ -1572,12 +1572,12 @@ class StepDeploy(Step):
                         f"[bold {col}]{b:6}[/bold {col}]  {m}  [dim]{k}[/dim]"))
 
         dest = INVENTORIES / S.codename
-        scenario_tmpl = PLAYBOOKS_DIR / "scenarios" / S.scenario / "templates"
+        scenario_tmpl = vedicon_playbook_DIR / "scenarios" / S.scenario / "templates"
 
         # validate the scenario: dir must exist AND contain all 4 required template files
         # (replaces the old copytree(demo_lab) fallback — each scenario is now authoritative)
         if not scenario_tmpl.exists():
-            log_row("FAIL", f"scenario '{S.scenario}' not found in range42-playbooks",
+            log_row("FAIL", f"scenario '{S.scenario}' not found in vedicon-vedicon_playbook",
                     f"expected dir: {scenario_tmpl}")
             return
         missing = [f for f in SCENARIO_REQUIRED_FILES if not (scenario_tmpl / f).exists()]
@@ -1589,7 +1589,7 @@ class StepDeploy(Step):
         was_new = not dest.exists()
         try:
             # create skeleton: hosts.yml + group_vars/all/ only
-            # scenario group_vars are populated further down from playbooks templates
+            # scenario group_vars are populated further down from vedicon_playbook templates
             (dest / "group_vars" / "all").mkdir(parents=True, exist_ok=True)
             sh.copy2(EXAMPLE_DIR / "hosts.yml", dest / "hosts.yml")
             sh.copy2(EXAMPLE_DIR / "group_vars" / "all" / "vars.yml",
@@ -1630,10 +1630,10 @@ class StepDeploy(Step):
              f'infrastructure_proxmox_default_network_card_interface: "{S.nat_interface}"'),
             ('DEPLOYER_CLI_USER: "your_deployer_cli_username"', f'DEPLOYER_CLI_USER: "{S.deployer_user}"'),
             ('deployer_cli_ip: "127.0.0.1"',   f'deployer_cli_ip: "{S.deployer_ip}"'),
-            ('DEPLOYER_CLI__DST_GIT_DIR: "/home/your_deployer_cli_username/range42/"',
+            ('DEPLOYER_CLI__DST_GIT_DIR: "/home/your_deployer_cli_username/vedicon/"',
              f'DEPLOYER_CLI__DST_GIT_DIR: "{S.install_dir}/"'),
-            ('DEPLOYER_CLI__DST_CONFIG_BASE_DIR: "/home/your_deployer_cli_username/range42.config"',
-             f'DEPLOYER_CLI__DST_CONFIG_BASE_DIR: "/home/{S.deployer_user}/range42.config"'),
+            ('DEPLOYER_CLI__DST_CONFIG_BASE_DIR: "/home/your_deployer_cli_username/vedicon.config"',
+             f'DEPLOYER_CLI__DST_CONFIG_BASE_DIR: "/home/{S.deployer_user}/vedicon.config"'),
             ('ssh_client__dst_config_dir: "/home/your_deployer_cli_username/.ssh"',
              f'ssh_client__dst_config_dir: "/home/{S.deployer_user}/.ssh"'),
             # if local mirror enabled, use its URL as the apt proxy
@@ -1676,8 +1676,8 @@ class StepDeploy(Step):
             log_row("PASS", "configured apt-mirror",
                     f"ip={S.apt_mirror_vm_ip}  airgapped={S.apt_mirror_airgapped}")
 
-        # inject range42_lab_bridges with NAT toggles
-        bridges_yaml = "\n\n# lab bridges NAT configuration (managed by wizard)\nrange42_lab_bridges:\n"
+        # inject vedicon_lab_bridges with NAT toggles
+        bridges_yaml = "\n\n# lab bridges NAT configuration (managed by wizard)\nvedicon_lab_bridges:\n"
         for name in sorted(S.nat_bridges.keys()):
             idx = name.replace("vmbr", "")
             ip = f"192.168.{idx}.1"
@@ -1690,7 +1690,7 @@ class StepDeploy(Step):
                 f"codename={S.codename}  node={S.proxmox_node}  nat={S.nat_interface}")
         time.sleep(0.1)
 
-        # populate scenario group_vars from range42-playbooks/scenarios/<s>/templates/
+        # populate scenario group_vars from vedicon-vedicon_playbook/scenarios/<s>/templates/
         #   ansible-vars.yml   → vars.yml          (renamed back to Ansible convention)
         #   vault-example.yml  → vault.yml.example (same rename pattern)
         # if the scenario dir already exists (re-run on same codename+scenario),
@@ -1727,7 +1727,7 @@ class StepDeploy(Step):
         log.write("[bold #38bdf8]◆  deploy now?[/bold #38bdf8]")
         log.write("")
         log.write(
-            "  Deploy now will run all 3 playbooks in sequence:\n"
+            "  Deploy now will run all 3 vedicon_playbook in sequence:\n"
             "    1. generate credentials  (SSH keys, vault)\n"
             "    2. configure proxmox     (root SSH, jump user, API token)\n"
             "    3. deploy deployer-cli   (packages, workspace, SSH config)\n\n"
@@ -1751,8 +1751,8 @@ class StepDeploy(Step):
 
 
 # ── App ────────────────────────────────────────────────────────────────────────
-class Range42(App):
-    TITLE    = "RANGE42  ·  infrastructure setup  v2.1.0"
+class vedicon(App):
+    TITLE    = "VEDICON CYBER RANGE PLATFORM  —  infrastructure setup  v2.1.0"
     CSS      = CSS
     BINDINGS = [
         Binding("ctrl+c", "quit", "quit", show=True),
@@ -1887,7 +1887,7 @@ def post_wizard():
         return  # wizard was cancelled
 
     print()
-    _print_bold("range42 setup complete")
+    _print_bold("vedicon setup complete")
     _print_ok(f"inventory created: inventories/{S.codename}/")
     print()
 
@@ -1967,15 +1967,15 @@ def post_wizard():
         _print_ok("deployer-cli deployed")
         print()
         _print_info(f"repos cloned to:     {S.install_dir}/")
-        _print_info(f"workspace config in: ~/range42.config/")
+        _print_info(f"workspace config in: ~/vedicon.config/")
         print()
         print("  ---- first time setup ----")
         print()
         _print_info("activate your workspace:")
-        _print_cmd(f"range42-context use {S.codename} {S.scenario}")
+        _print_cmd(f"vedicon-context use {S.codename} {S.scenario}")
         print()
         _print_info("check everything is ready:")
-        _print_cmd("range42-context status")
+        _print_cmd("vedicon-context status")
         print()
         if S.catalog_try_path:
             # catalog-try mode : skip the generic deploy line ; the operator goes
@@ -1985,41 +1985,41 @@ def post_wizard():
             # propagated into a copy-paste-able command suggestion. For normal
             # logical paths (e.g. docker/_ctf/hello), quote() returns the string
             # unchanged ; only weird input gets wrapped in single quotes.
-            _print_cmd(f"range42-context catalog-try {shlex.quote(S.catalog_try_path)}")
+            _print_cmd(f"vedicon-context catalog-try {shlex.quote(S.catalog_try_path)}")
             print()
             _print_info("discover other catalog-try-compatible elements :")
-            _print_cmd("range42-context catalog-try-list")
+            _print_cmd("vedicon-context catalog-try-list")
             print()
         else:
             _print_info("deploy the lab VMs:")
-            _print_cmd("range42-context deploy")
+            _print_cmd("vedicon-context deploy")
             print()
         print("  ---- daily operations ----")
         print()
         _print_info("fast redeploy (VMs only, skip templates):")
-        _print_cmd("range42-context delete-vms")
-        _print_cmd("range42-context deploy-vms")
+        _print_cmd("vedicon-context delete-vms")
+        _print_cmd("vedicon-context deploy-vms")
         print()
         _print_info("full reset (delete all + recreate):")
-        _print_cmd("range42-context reset")
+        _print_cmd("vedicon-context reset")
         print()
         _print_info("quick ssh to a VM:")
-        _print_cmd("range42-context ssh wazuh")
+        _print_cmd("vedicon-context ssh wazuh")
         print()
         _print_info("all commands:")
-        _print_cmd("range42-context help")
+        _print_cmd("vedicon-context help")
         print()
         print("  ---- add another infrastructure ----")
         print()
-        _print_cmd("range42-context init")
+        _print_cmd("vedicon-context init")
         print()
 
         # if current shell is bash and zsh is available, switch to zsh
-        # so range42-context works immediately
+        # so vedicon-context works immediately
         current_shell = os.environ.get("SHELL", "")
         zsh_path = shutil.which("zsh")
         if "/bash" in current_shell and zsh_path:
-            _print_info("switching to zsh (required for range42-context)...")
+            _print_info("switching to zsh (required for vedicon-context)...")
             print()
             os.execv(zsh_path, [zsh_path, "-l"])
 
@@ -2035,7 +2035,7 @@ def post_wizard():
 
 
 if __name__ == "__main__":
-    app = Range42()
+    app = vedicon()
     app._install_cmd = None
     app.run()
 
@@ -2050,7 +2050,7 @@ if __name__ == "__main__":
             _print_cmd("usermod -aG sudo <your-user>")
             print()
             _print_info("then log out and log back in, and re-run:")
-            _print_cmd("python3 range42-init.py")
+            _print_cmd("python3 vedicon-init.py")
             print()
         sys.exit(1)
 

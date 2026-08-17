@@ -1,6 +1,6 @@
 ---
 ################################################################################
-# range42 — site.yml
+# vedicon — site.yml
 #
 # Orchestrates the full deployment pipeline in sequence:
 #   1. Generate credentials (localhost)
@@ -14,9 +14,9 @@
 #     --vault-password-file ./config/<CODENAME>-<SCENARIO>/secrets/vault_pass.txt
 #
 # Or run each step individually:
-#   ansible-playbook playbooks/01_generate_credentials.yml -i ...
-#   ansible-playbook playbooks/02_configure_proxmox.yml -i ...
-#   ansible-playbook playbooks/03_deploy_deployer_cli.yml -i ... --vault-password-file ...
+#   ansible-playbook vedicon_playbook/01_generate_credentials.yml -i ...
+#   ansible-playbook vedicon_playbook/02_configure_proxmox.yml -i ...
+#   ansible-playbook vedicon_playbook/03_deploy_deployer_cli.yml -i ... --vault-password-file ...
 #
 ################################################################################
 
@@ -28,6 +28,6 @@
   roles:
     - configuration.validate
 
-- import_playbook: playbooks/01_generate_credentials.yml
-- import_playbook: playbooks/02_configure_proxmox.yml
-- import_playbook: playbooks/03_deploy_deployer_cli.yml
+- import_playbook: vedicon_playbook/01_generate_credentials.yml
+- import_playbook: vedicon_playbook/02_configure_proxmox.yml
+- import_playbook: vedicon_playbook/03_deploy_deployer_cli.yml

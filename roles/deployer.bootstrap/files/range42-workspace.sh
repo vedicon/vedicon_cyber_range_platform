@@ -1,36 +1,36 @@
 #!/usr/bin/env zsh
 ################################################################################
-# range42-workspace — workspace export/import tool (zsh function)
+# vedicon-workspace — workspace export/import tool (zsh function)
 #
-# This file is SOURCED in .zshrc alongside range42-context.sh.
+# This file is SOURCED in .zshrc alongside vedicon-context.sh.
 #
 # Usage:
-#   range42-workspace export                          — export active workspace as archive
-#   range42-workspace export <codename> <scenario>    — export specific workspace
-#   range42-workspace import <archive>                — import workspace from archive
-#   range42-workspace help                            — show help
+#   vedicon-workspace export                          — export active workspace as archive
+#   vedicon-workspace export <codename> <scenario>    — export specific workspace
+#   vedicon-workspace import <archive>                — import workspace from archive
+#   vedicon-workspace help                            — show help
 #
 # Export produces:
-#   ~/range42-workspace-export-CODENAME-SCENARIO-YYYYMMDD.r42.tar.gz
+#   ~/vedicon-workspace-export-CODENAME-SCENARIO-YYYYMMDD.r42.tar.gz
 #
 # Import:
 #   - detects current user (whoami)
 #   - rewrites /home/<old_user>/ → /home/<current_user>/ in config files
 #   - clones git repos if absent
 #   - recreates symlinks (secrets, scenario)
-#   - installs SSH keys in ~/.ssh/range42/
+#   - installs SSH keys in ~/.ssh/vedicon/
 #
 ################################################################################
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# constants (shared with range42-context)
+# constants (shared with vedicon-context)
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
-RANGE42_CONFIG_BASE_DIR="${RANGE42_CONFIG_BASE_DIR:-$HOME/range42.config}"
-RANGE42_GIT_DIR="${RANGE42_GIT_DIR:-$HOME/range42}"
+vedicon_CONFIG_BASE_DIR="${vedicon_CONFIG_BASE_DIR:-$HOME/vedicon.config}"
+vedicon_GIT_DIR="${vedicon_GIT_DIR:-$HOME/vedicon}"
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-workspace export (T48)
+# vedicon-workspace export (T48)
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42ws_export() {
@@ -40,23 +40,23 @@ _r42ws_export() {
 
     # if no args, use active workspace
     if [[ -z "$codename" ]]; then
-        if [[ -z "$RANGE42_ACTIVE_WORKSPACE" ]]; then
+        if [[ -z "$vedicon_ACTIVE_WORKSPACE" ]]; then
             _r42_print_fail "no active workspace and no arguments provided"
-            _r42_print_warning "usage: range42-workspace export <codename> <scenario>"
+            _r42_print_warning "usage: vedicon-workspace export <codename> <scenario>"
             return 1
         fi
         # parse CODENAME-SCENARIO from active workspace
         # the scenario is the last part after the last '-' that matches a known pattern
         # but since codenames contain dashes too, we use the config dir to find the split
-        local target="$RANGE42_ACTIVE_WORKSPACE"
-        local config_dir="$RANGE42_CONFIG_BASE_DIR/$target"
+        local target="$vedicon_ACTIVE_WORKSPACE"
+        local config_dir="$vedicon_CONFIG_BASE_DIR/$target"
     else
         if [[ -z "$scenario" ]]; then
-            _r42_print_fail "usage: range42-workspace export <codename> <scenario>"
+            _r42_print_fail "usage: vedicon-workspace export <codename> <scenario>"
             return 1
         fi
         local target="${codename}-${scenario}"
-        local config_dir="$RANGE42_CONFIG_BASE_DIR/$target"
+        local config_dir="$vedicon_CONFIG_BASE_DIR/$target"
     fi
 
     # verify workspace exists
@@ -69,7 +69,7 @@ _r42ws_export() {
 
     local date_tag
     date_tag="$(date +%Y%m%d)"
-    local archive_name="range42-workspace-export-${target}-${date_tag}.r42.tar.gz"
+    local archive_name="vedicon-workspace-export-${target}-${date_tag}.r42.tar.gz"
     local archive_path="$HOME/$archive_name"
     local tmp_dir
     tmp_dir="$(mktemp -d)"
@@ -82,22 +82,22 @@ _r42ws_export() {
     # generate metadata.yml
     _r42_print_step "generating metadata.yml"
     cat > "$export_dir/metadata.yml" <<EOF
-# range42 workspace export metadata
+# vedicon workspace export metadata
 # generated: $(date -Iseconds)
 workspace: "$target"
 exported_by: "$(whoami)"
 exported_from: "$(hostname)"
 original_home: "$HOME"
 original_config_dir: "$config_dir"
-original_git_dir: "$RANGE42_GIT_DIR"
+original_git_dir: "$vedicon_GIT_DIR"
 EOF
 
-    # copy ssh keys from ~/.ssh/range42/CODENAME-SCENARIO/ if they exist
-    local ssh_keys_dir="$HOME/.ssh/range42/$target"
+    # copy ssh keys from ~/.ssh/vedicon/CODENAME-SCENARIO/ if they exist
+    local ssh_keys_dir="$HOME/.ssh/vedicon/$target"
     if [[ -d "$ssh_keys_dir" ]]; then
         _r42_print_step "including SSH keys from $ssh_keys_dir"
-        mkdir -p "$export_dir/dot_ssh_range42"
-        cp -r "$ssh_keys_dir/"* "$export_dir/dot_ssh_range42/"
+        mkdir -p "$export_dir/dot_ssh_vedicon"
+        cp -r "$ssh_keys_dir/"* "$export_dir/dot_ssh_vedicon/"
     fi
 
     # create archive
@@ -114,7 +114,7 @@ EOF
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-workspace import (T49, T50, T51)
+# vedicon-workspace import (T49, T50, T51)
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42ws_import() {
@@ -122,7 +122,7 @@ _r42ws_import() {
     local archive_path="$1"
 
     if [[ -z "$archive_path" || ! -f "$archive_path" ]]; then
-        _r42_print_fail "usage: range42-workspace import <archive.r42.tar.gz>"
+        _r42_print_fail "usage: vedicon-workspace import <archive.r42.tar.gz>"
         return 1
     fi
 
@@ -170,27 +170,27 @@ _r42ws_import() {
             -exec sed -i "s|${old_home}|${current_home}|g" {} +
     fi
 
-    #### deploy workspace to range42.config
+    #### deploy workspace to vedicon.config
 
-    local dest_config_dir="$RANGE42_CONFIG_BASE_DIR/$target"
+    local dest_config_dir="$vedicon_CONFIG_BASE_DIR/$target"
 
     if [[ -d "$dest_config_dir" ]]; then
         _r42_print_warning "workspace already exists: $dest_config_dir"
         _r42_print_warning "overwriting..."
     fi
 
-    # remove metadata.yml and dot_ssh_range42 before copying to config dir
+    # remove metadata.yml and dot_ssh_vedicon before copying to config dir
     rm -f "$workspace_dir/metadata.yml"
-    local ssh_backup_dir="$workspace_dir/dot_ssh_range42"
+    local ssh_backup_dir="$workspace_dir/dot_ssh_vedicon"
 
     _r42_print_step "deploying to $dest_config_dir"
     mkdir -p "$dest_config_dir"
-    # copy everything except dot_ssh_range42
-    rsync -a --exclude='dot_ssh_range42' "$workspace_dir/" "$dest_config_dir/"
+    # copy everything except dot_ssh_vedicon
+    rsync -a --exclude='dot_ssh_vedicon' "$workspace_dir/" "$dest_config_dir/"
 
-    #### T51: install SSH keys in ~/.ssh/range42/
+    #### T51: install SSH keys in ~/.ssh/vedicon/
 
-    local ssh_dest_dir="$HOME/.ssh/range42/$target"
+    local ssh_dest_dir="$HOME/.ssh/vedicon/$target"
     if [[ -d "$ssh_backup_dir" ]]; then
         _r42_print_step "installing SSH keys to $ssh_dest_dir"
         mkdir -p "$ssh_dest_dir"
@@ -205,22 +205,22 @@ _r42ws_import() {
     _r42_print_step "checking git repos"
 
     local repos=(
-        "range42-ansible_roles-proxmox_controller:https://github.com/range42/range42-ansible_roles-proxmox_controller.git"
-        "range42-catalog:https://github.com/range42/range42-catalog.git"
-        "range42-playbooks:https://github.com/range42/range42-playbooks.git"
-        "range42-ansible_roles-debug-devkit:https://github.com/range42/range42-ansible_roles-debug-devkit.git"
-        "range42-deployer-ui:https://github.com/range42/range42-deployer-ui.git"
-        "range42-backend-api:https://github.com/range42/range42-backend-api.git"
+        "vedicon-ansible_roles-proxmox_controller:https://github.com/vedicon/vedicon_cyber_range_platform-ansible_roles-proxmox_controller.git"
+        "vedicon-catalog:https://github.com/vedicon/vedicon_cyber_range_platform-catalog.git"
+        "vedicon-vedicon_playbook:https://github.com/vedicon/vedicon_cyber_range_platform-vedicon_playbook.git"
+        "vedicon-ansible_roles-debug-devkit:https://github.com/vedicon/vedicon_cyber_range_platform-ansible_roles-debug-devkit.git"
+        "vedicon-deployer-ui:https://github.com/vedicon/vedicon_cyber_range_platform-deployer-ui.git"
+        "vedicon-backend-api:https://github.com/vedicon/vedicon_cyber_range_platform-backend-api.git"
     )
 
-    mkdir -p "$RANGE42_GIT_DIR"
+    mkdir -p "$vedicon_GIT_DIR"
     local repo_entry repo_name repo_url
     for repo_entry in "${repos[@]}"; do
         repo_name="${repo_entry%%:*}"
         repo_url="${repo_entry#*:}"
-        if [[ ! -d "$RANGE42_GIT_DIR/$repo_name" ]]; then
+        if [[ ! -d "$vedicon_GIT_DIR/$repo_name" ]]; then
             _r42_print_step "cloning $repo_name"
-            git clone "$repo_url" "$RANGE42_GIT_DIR/$repo_name" 2>/dev/null || {
+            git clone "$repo_url" "$vedicon_GIT_DIR/$repo_name" 2>/dev/null || {
                 _r42_print_warning "failed to clone $repo_name — skipping"
             }
         else
@@ -233,9 +233,9 @@ _r42ws_import() {
     _r42_print_step "recreating symlinks"
 
     # parse scenario from target (last segment after last known codename pattern)
-    # we look for the scenario directory in range42-playbooks
+    # we look for the scenario directory in vedicon-vedicon_playbook
     local scenario_dir
-    for d in "$RANGE42_GIT_DIR"/range42-playbooks/scenarios/*/; do
+    for d in "$vedicon_GIT_DIR"/vedicon-vedicon_playbook/scenarios/*/; do
         local scenario_name="$(basename "$d")"
         if [[ "$target" == *"-${scenario_name}" ]]; then
             scenario_dir="$d"
@@ -243,7 +243,7 @@ _r42ws_import() {
         fi
     done
 
-    # secrets symlink in playbooks repo
+    # secrets symlink in vedicon_playbook repo
     if [[ -n "$scenario_dir" ]]; then
         rm -f "${scenario_dir}/secrets" 2>/dev/null
         ln -sf "$dest_config_dir/secrets" "${scenario_dir}/secrets"
@@ -253,13 +253,13 @@ _r42ws_import() {
         ln -sf "$scenario_dir" "$dest_config_dir/scenario"
         _r42_print_check "symlink: config/scenario → $scenario_dir"
     else
-        _r42_print_warning "could not detect scenario directory in range42-playbooks"
+        _r42_print_warning "could not detect scenario directory in vedicon-vedicon_playbook"
     fi
 
     # secrets symlink in debug-devkit repo
-    if [[ -d "$RANGE42_GIT_DIR/range42-ansible_roles-debug-devkit" ]]; then
-        rm -f "$RANGE42_GIT_DIR/range42-ansible_roles-debug-devkit/secrets" 2>/dev/null
-        ln -sf "$dest_config_dir/secrets" "$RANGE42_GIT_DIR/range42-ansible_roles-debug-devkit/secrets"
+    if [[ -d "$vedicon_GIT_DIR/vedicon-ansible_roles-debug-devkit" ]]; then
+        rm -f "$vedicon_GIT_DIR/vedicon-ansible_roles-debug-devkit/secrets" 2>/dev/null
+        ln -sf "$dest_config_dir/secrets" "$vedicon_GIT_DIR/vedicon-ansible_roles-debug-devkit/secrets"
         _r42_print_check "symlink: debug-devkit/secrets → config secrets"
     fi
 
@@ -269,17 +269,17 @@ _r42ws_import() {
 
     echo ""
     _r42_print_check "import complete: $target"
-    _r42_print_step "activate with: range42-context use <codename> <scenario>"
+    _r42_print_step "activate with: vedicon-context use <codename> <scenario>"
     echo ""
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-workspace help
+# vedicon-workspace help
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42ws_help() {
     echo ""
-    echo "usage: range42-workspace <command>"
+    echo "usage: vedicon-workspace <command>"
     echo ""
     echo "commands:"
     echo "  export                              export active workspace as .r42.tar.gz"
@@ -287,16 +287,16 @@ _r42ws_help() {
     echo "  import <archive.r42.tar.gz>         import workspace from archive"
     echo "  help                                show this help"
     echo ""
-    echo "export creates: ~/range42-workspace-export-CODENAME-SCENARIO-YYYYMMDD.r42.tar.gz"
+    echo "export creates: ~/vedicon-workspace-export-CODENAME-SCENARIO-YYYYMMDD.r42.tar.gz"
     echo "import: rewrites paths, clones repos, recreates symlinks, installs SSH keys"
     echo ""
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# main entry point — range42-workspace function
+# main entry point — vedicon-workspace function
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
-range42-workspace() {
+vedicon-workspace() {
 
     local cmd="${1:-help}"
     shift 2>/dev/null

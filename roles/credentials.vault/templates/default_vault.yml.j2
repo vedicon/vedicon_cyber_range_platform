@@ -84,7 +84,7 @@ infrastructure_wazuh_admin_password: "{{ generated_wazuh_password }}"
 
 
 ###############################################################################
-# 6 - SSH KEY PASSPHRASES (auto-unlock by range42-context use via SSH_ASKPASS)
+# 6 - SSH KEY PASSPHRASES (auto-unlock by vedicon-context use via SSH_ASKPASS)
 ###############################################################################
 
 ssh_passphrase_px_root:                "{{ generated_px_root_passphrase | default('') }}"

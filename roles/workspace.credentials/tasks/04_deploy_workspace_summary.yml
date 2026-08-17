@@ -3,10 +3,10 @@
 #
 # summary.txt is generated locally by credentials.generate/06_write_summary.yml
 # and contains the non-secret workspace orientation (paths + SSH hosts).
-# It is consumed by `range42-context show-config` on the deployer-cli.
+# It is consumed by `vedicon-context show-config` on the deployer-cli.
 #
 # Secrets (SSH passphrases + VM passwords) are no longer in summary.txt -
-# they live in the ansible vault (see `range42-context show-vault`).
+# they live in the ansible vault (see `vedicon-context show-vault`).
 
 - name: WORKSPACE CREDENTIALS - DEPLOY SUMMARY.TXT TO DEPLOYER-CLI
   ansible.builtin.copy:

@@ -6,17 +6,17 @@
 # Requires: 01_generate_credentials.yml completed (keys + vault exist).
 #
 # Usage:
-#   ansible-playbook playbooks/03_deploy_deployer_cli.yml \
+#   ansible-playbook vedicon_playbook/03_deploy_deployer_cli.yml \
 #     -i inventories/<your-codename>/hosts.yml \
 #     -e INFRASTRUCTURE_SCENARIO=demo_lab \
 #     --vault-password-file ./config/<CODENAME>-<SCENARIO>/secrets/vault_pass.txt
 #
 # After this playbook:
 #   - system bootstrapped (packages, zsh, dotfiles)
-#   - range42 repos cloned in ~/range42/
-#   - workspace created in ~/range42.config/CODENAME-SCENARIO/
+#   - vedicon repos cloned in ~/vedicon/
+#   - workspace created in ~/vedicon.config/CODENAME-SCENARIO/
 #   - SSH keys + vault + inventory deployed
-#   - SSH config configured (Include + range42 host entries)
+#   - SSH config configured (Include + vedicon host entries)
 #   - symlinks created (secrets, scenario)
 #   - Proxmox CA cert installed in system trust store (if 02 was run first)
 #

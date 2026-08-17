@@ -1,7 +1,7 @@
 """
 wizard/preflight.py — preflight check definitions and detection logic
 
-Pure stdlib — no textual dependency. Used by range42-init.py before TUI starts.
+Pure stdlib — no textual dependency. Used by vedicon-init.py before TUI starts.
 """
 
 import os
@@ -198,15 +198,15 @@ def run_all_checks(example_dir):
         "required": True,
     })
 
-    # range42-playbooks repo check (auto-clone if missing)
-    # script_dir = range42/ repo root — from example_dir (inventories/example) go up 2 levels
+    # vedicon-vedicon_playbook repo check (auto-clone if missing)
+    # script_dir = vedicon/ repo root — from example_dir (inventories/example) go up 2 levels
     script_dir = Path(example_dir).parent.parent
-    badge, detail = ensure_playbooks_repo(script_dir)
+    badge, detail = ensure_vedicon_playbook_repo(script_dir)
     if badge == "FAIL":
         fail = True
     results.append({
         "badge": badge,
-        "label": "range42-playbooks",
+        "label": "vedicon-vedicon_playbook",
         "detail": detail,
         "required": True,
     })
@@ -273,13 +273,13 @@ def _has_deployable_scenario(scenarios_dir):
     return False
 
 
-def ensure_playbooks_repo(script_dir):
+def ensure_vedicon_playbook_repo(script_dir):
     """
-    Ensure range42-playbooks is cloned as a sibling of the range42 repo AND
+    Ensure vedicon-vedicon_playbook is cloned as a sibling of the vedicon repo AND
     that at least one scenario is deployable (has a complete templates/ dir).
 
     After the scenario-templates migration refactor, scenario templates + group_vars
-    live in range42-playbooks. The wizard (and the Ansible roles) need a local
+    live in vedicon-vedicon_playbook. The wizard (and the Ansible roles) need a local
     clone on the operator to find them (the template module reads src on the
     controller, not on the target).
 
@@ -291,34 +291,34 @@ def ensure_playbooks_repo(script_dir):
 
     Returns: (badge, detail)
     """
-    playbooks_dir = Path(script_dir).parent / "range42-playbooks"
-    scenarios_dir = playbooks_dir / "scenarios"
+    vedicon_playbook_dir = Path(script_dir).parent / "vedicon-vedicon_playbook"
+    scenarios_dir = vedicon_playbook_dir / "scenarios"
 
     # Case 1: dir exists and has at least one deployable scenario
-    if playbooks_dir.exists() and _has_deployable_scenario(scenarios_dir):
-        return "PASS", f"  {playbooks_dir}"
+    if vedicon_playbook_dir.exists() and _has_deployable_scenario(scenarios_dir):
+        return "PASS", f"  {vedicon_playbook_dir}"
 
     # Case 2: dir exists but is outdated (no deployable scenario)
     # can't auto-update (would need git pull, risky for user local changes)
-    if playbooks_dir.exists():
+    if vedicon_playbook_dir.exists():
         return "FAIL", (
-            f"  {playbooks_dir} exists but has no deployable scenario "
+            f"  {vedicon_playbook_dir} exists but has no deployable scenario "
             f"(missing templates/ in scenarios/*/). "
-            f"Update with: cd {playbooks_dir} && git pull"
+            f"Update with: cd {vedicon_playbook_dir} && git pull"
         )
 
     # Case 3: dir missing → try clone
     try:
         subprocess.run(
             ["git", "clone", "--quiet",
-             "https://github.com/range42/range42-playbooks.git",
-             str(playbooks_dir)],
+             "https://github.com/vedicon/vedicon_cyber_range_platform-vedicon_playbook.git",
+             str(vedicon_playbook_dir)],
             check=True, capture_output=True, text=True, timeout=60,
         )
         # verify the clone yielded at least one deployable scenario
         if not _has_deployable_scenario(scenarios_dir):
             return "FAIL", f"  cloned but no deployable scenario found in {scenarios_dir}"
-        return "PASS", f"  cloned → {playbooks_dir}"
+        return "PASS", f"  cloned → {vedicon_playbook_dir}"
     except subprocess.CalledProcessError as e:
         err = e.stderr.strip().splitlines()[-1] if e.stderr else "unknown error"
         return "FAIL", f"  clone failed: {err}"

@@ -24,7 +24,7 @@ TODO.md_backup
 
 # wizard logs (may contain passwords)
 *.log
-range42-init.py.log
+vedicon-init.py.log
 
 # old/backup files
 *.old

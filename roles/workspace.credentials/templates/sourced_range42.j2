@@ -3,35 +3,35 @@
 
 export LC_ALL="C.UTF-8"
 
-export RANGE42_INFRASTRUCTURE_CODENAME="{{ INFRASTRUCTURE_CODENAME }}"
-export RANGE42_INFRASTRUCTURE_LAB="{{ INFRASTRUCTURE_SCENARIO }}"
-export RANGE42_INFRASTRUCTURE_CODENAME_LAB_NAMES="$RANGE42_INFRASTRUCTURE_CODENAME-$RANGE42_INFRASTRUCTURE_LAB"
+export vedicon_INFRASTRUCTURE_CODENAME="{{ INFRASTRUCTURE_CODENAME }}"
+export vedicon_INFRASTRUCTURE_LAB="{{ INFRASTRUCTURE_SCENARIO }}"
+export vedicon_INFRASTRUCTURE_CODENAME_LAB_NAMES="$vedicon_INFRASTRUCTURE_CODENAME-$vedicon_INFRASTRUCTURE_LAB"
 
-export RANGE42_GITDIR__ROOT_DIR="{{ DEPLOYER_CLI__DST_GIT_DIR }}"
-export RANGE42_CONFIG_BASE_DIR="{{ DEPLOYER_CLI__DST_CONFIG_BASE_DIR }}"
-export RANGE42_CONFIG__ROOT_DIR="{{ DEPLOYER_CLI__DST_CONFIG_BASE_DIR }}/$RANGE42_INFRASTRUCTURE_CODENAME_LAB_NAMES/"
+export vedicon_GITDIR__ROOT_DIR="{{ DEPLOYER_CLI__DST_GIT_DIR }}"
+export vedicon_CONFIG_BASE_DIR="{{ DEPLOYER_CLI__DST_CONFIG_BASE_DIR }}"
+export vedicon_CONFIG__ROOT_DIR="{{ DEPLOYER_CLI__DST_CONFIG_BASE_DIR }}/$vedicon_INFRASTRUCTURE_CODENAME_LAB_NAMES/"
 
-export RANGE42_ANSIBLE_ROLES__ROOT_DIR="${RANGE42_GITDIR__ROOT_DIR%/}/"
+export vedicon_ANSIBLE_ROLES__ROOT_DIR="${vedicon_GITDIR__ROOT_DIR%/}/"
 
-export RANGE42_ANSIBLE_ROLES__DEVKITS_DIR="${RANGE42_GITDIR__ROOT_DIR%/}/range42-ansible_roles-debug-devkit/"
-export RANGE42_ANSIBLE_ROLES__INVENTORY_DIR="${RANGE42_CONFIG__ROOT_DIR%/}/inventory/"
+export vedicon_ANSIBLE_ROLES__DEVKITS_DIR="${vedicon_GITDIR__ROOT_DIR%/}/vedicon-ansible_roles-debug-devkit/"
+export vedicon_ANSIBLE_ROLES__INVENTORY_DIR="${vedicon_CONFIG__ROOT_DIR%/}/inventory/"
 
-export RANGE42_INVENTORY="${RANGE42_ANSIBLE_ROLES__ROOT_DIR%/}/range42-catalog"
-export RANGE42_INVENTORY__DOCKER__CTF="${RANGE42_INVENTORY%/}/03_container_layer/docker/_ctf/"
+export vedicon_INVENTORY="${vedicon_ANSIBLE_ROLES__ROOT_DIR%/}/vedicon-catalog"
+export vedicon_INVENTORY__DOCKER__CTF="${vedicon_INVENTORY%/}/03_container_layer/docker/_ctf/"
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 # :: ROLES PATH
 
-TMP_ANSIBLE_ROLES_PATHS="${RANGE42_ANSIBLE_ROLES__ROOT_DIR%/}/range42/roles/:"
-TMP_ANSIBLE_ROLES_PATHS+="${RANGE42_ANSIBLE_ROLES__ROOT_DIR%/}/range42-ansible_roles-proxmox_controller/roles/:"
-TMP_ANSIBLE_ROLES_PATHS+="${RANGE42_ANSIBLE_ROLES__ROOT_DIR%/}/range42-catalog/02_ansible_layer/admin/roles/:"
-TMP_ANSIBLE_ROLES_PATHS+="${RANGE42_ANSIBLE_ROLES__ROOT_DIR%/}/range42-catalog/02_ansible_layer/trainee/roles/"
+TMP_ANSIBLE_ROLES_PATHS="${vedicon_ANSIBLE_ROLES__ROOT_DIR%/}/vedicon/roles/:"
+TMP_ANSIBLE_ROLES_PATHS+="${vedicon_ANSIBLE_ROLES__ROOT_DIR%/}/vedicon-ansible_roles-proxmox_controller/roles/:"
+TMP_ANSIBLE_ROLES_PATHS+="${vedicon_ANSIBLE_ROLES__ROOT_DIR%/}/vedicon-catalog/02_ansible_layer/admin/roles/:"
+TMP_ANSIBLE_ROLES_PATHS+="${vedicon_ANSIBLE_ROLES__ROOT_DIR%/}/vedicon-catalog/02_ansible_layer/trainee/roles/"
 
 export ANSIBLE_ROLES_PATH="$TMP_ANSIBLE_ROLES_PATHS"
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 # :: VAULT PASSWORD FILE
 
-export RANGE42_VAULT_PASSWORD_FILE="${RANGE42_CONFIG__ROOT_DIR%/}/secrets/vault_pass.txt"
+export vedicon_VAULT_PASSWORD_FILE="${vedicon_CONFIG__ROOT_DIR%/}/secrets/vault_pass.txt"
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####

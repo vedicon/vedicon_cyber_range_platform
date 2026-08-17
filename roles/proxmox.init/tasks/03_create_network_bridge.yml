@@ -24,9 +24,9 @@
     --address {{ item.ip }}
     --netmask 255.255.255.0
     --autostart 1
-    --comments 'range42 lab network'"
+    --comments 'vedicon lab network'"
   when: item.name not in existing_bridges.stdout
-  loop: "{{ range42_lab_bridges }}"
+  loop: "{{ vedicon_lab_bridges }}"
   register: bridges_created
   changed_when: item.name not in existing_bridges.stdout
 
@@ -48,33 +48,33 @@
 - name: PROXMOX INIT - RENDER NAT RULES FOR ENABLED BRIDGES
   ansible.builtin.template:
     src: bridge_nat_rules.j2
-    dest: "/tmp/range42_nat_{{ item.name }}.txt"
+    dest: "/tmp/vedicon_nat_{{ item.name }}.txt"
     mode: "0644"
   vars:
     bridge_ip: "{{ item.ip }}"
-  loop: "{{ range42_lab_bridges | selectattr('nat') | list }}"
+  loop: "{{ vedicon_lab_bridges | selectattr('nat') | list }}"
 
 - name: PROXMOX INIT - UPLOAD AND INJECT NAT (ENABLED BRIDGES)
   ansible.builtin.shell: >
-    scp /tmp/range42_nat_{{ item.name }}.txt
-    root@{{ INFRASTRUCTURE_PROXMOX_ADDRESS }}:/tmp/range42_nat_{{ item.name }}.txt &&
+    scp /tmp/vedicon_nat_{{ item.name }}.txt
+    root@{{ INFRASTRUCTURE_PROXMOX_ADDRESS }}:/tmp/vedicon_nat_{{ item.name }}.txt &&
     ssh root@{{ INFRASTRUCTURE_PROXMOX_ADDRESS }}
-    "/tmp/inject_nat_rules.sh {{ item.name }} /tmp/range42_nat_{{ item.name }}.txt"
-  loop: "{{ range42_lab_bridges | selectattr('nat') | list }}"
+    "/tmp/inject_nat_rules.sh {{ item.name }} /tmp/vedicon_nat_{{ item.name }}.txt"
+  loop: "{{ vedicon_lab_bridges | selectattr('nat') | list }}"
   changed_when: true
 
 - name: PROXMOX INIT - REMOVE NAT (DISABLED BRIDGES)
   ansible.builtin.shell: >
     ssh root@{{ INFRASTRUCTURE_PROXMOX_ADDRESS }}
     "/tmp/inject_nat_rules.sh {{ item.name }} REMOVE"
-  loop: "{{ range42_lab_bridges | rejectattr('nat') | list }}"
+  loop: "{{ vedicon_lab_bridges | rejectattr('nat') | list }}"
   changed_when: true
 
 - name: PROXMOX INIT - CLEAN UP LOCAL NAT TEMP FILES
   ansible.builtin.file:
-    path: "/tmp/range42_nat_{{ item.name }}.txt"
+    path: "/tmp/vedicon_nat_{{ item.name }}.txt"
     state: absent
-  loop: "{{ range42_lab_bridges | selectattr('nat') | list }}"
+  loop: "{{ vedicon_lab_bridges | selectattr('nat') | list }}"
 
 - name: PROXMOX INIT - CLEAN UP REMOTE INJECT SCRIPT
   ansible.builtin.shell: >
@@ -107,8 +107,8 @@
 
       #### #### #### #### #### #### #### #### #### #### ####
 
-      Network bridges: vmbr140 — vmbr150 (range42 lab networks)
-      NAT enabled on: {{ range42_lab_bridges | selectattr('nat') | map(attribute='name') | join(', ') }}
+      Network bridges: vmbr140 — vmbr150 (vedicon lab networks)
+      NAT enabled on: {{ vedicon_lab_bridges | selectattr('nat') | map(attribute='name') | join(', ') }}
       NAT outbound: via {{ infrastructure_proxmox_default_network_card_interface }}
       IP forwarding: enabled
 

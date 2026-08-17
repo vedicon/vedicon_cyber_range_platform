@@ -11,9 +11,9 @@
 #
 # What this role does:
 #   1. Ensure ~/.ssh/ directory and base files exist
-#   2. Create SSH key directories under ~/.ssh/range42/CODENAME-SCENARIO/
+#   2. Create SSH key directories under ~/.ssh/vedicon/CODENAME-SCENARIO/
 #   3. Inject an Include block in ~/.ssh/config (one per CODENAME-SCENARIO)
-#   4. Generate the range42 SSH config file from template
+#   4. Generate the vedicon SSH config file from template
 #
 # Fixes included:
 #   - B1: insertbefore: BOF (was insertafter: EOF)
@@ -31,8 +31,8 @@
 #   - INFRASTRUCTURE_PROXMOX_ADDRESS
 #   - DEPLOYER_CLI__DST_SSH_CONFIG_DIR
 #   - DEPLOYER_CLI__DST_SSH_CONFIG_DEFAULT_FILE
-#   - DEPLOYER_CLI__DST_SSH_CONFIG_RANGE42_FILE
-#   - DEPLOYER_CLI__DST_SSH_CONFIG_RANGE42_KEYS_DIR
+#   - DEPLOYER_CLI__DST_SSH_CONFIG_vedicon_FILE
+#   - DEPLOYER_CLI__DST_SSH_CONFIG_vedicon_KEYS_DIR
 #   - DEPLOYER_CLI__DST_SSH_KEYS_BACKEND_DEST_DIR
 #   - DEPLOYER_CLI__DST_SSH_KEYS_JUMP_DEST_DIR
 #   - DEPLOYER_CLI__DST_SSH_KEYS_STUDENT_DEST_DIR

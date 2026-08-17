@@ -44,7 +44,7 @@
         proxmox_node: "<one of the names above>"
 
       Or re-run the wizard :
-        ./range42-init.py
+        ./vedicon-init.py
 
       #### #### #### #### #### #### #### #### #### #### ####
   when: proxmox_node not in _proxmox_actual_nodes

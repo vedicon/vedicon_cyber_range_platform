@@ -6,15 +6,15 @@
 #
 # source: configure.deployer-cli/tasks/04_ssh_client.yml (lines 72-83)
 
-- name: WORKSPACE SSH-CONFIG - INJECT RANGE42 INCLUDE IN SSH CONFIG
+- name: WORKSPACE SSH-CONFIG - INJECT vedicon INCLUDE IN SSH CONFIG
   ansible.builtin.blockinfile:
     path: "{{ DEPLOYER_CLI__DST_SSH_CONFIG_DEFAULT_FILE }}"
-    marker: "#### {mark} RANGE42 INCLUDE - {{ INFRASTRUCTURE_CODENAME }} - {{ INFRASTRUCTURE_SCENARIO }} ####"
+    marker: "#### {mark} vedicon INCLUDE - {{ INFRASTRUCTURE_CODENAME }} - {{ INFRASTRUCTURE_SCENARIO }} ####"
     block: |
 
       #### ####  #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
-      Include {{ DEPLOYER_CLI__DST_SSH_CONFIG_RANGE42_FILE }}
+      Include {{ DEPLOYER_CLI__DST_SSH_CONFIG_vedicon_FILE }}
 
       #### ####  #### #### #### #### #### #### #### #### #### #### #### #### #### ####
     insertbefore: BOF

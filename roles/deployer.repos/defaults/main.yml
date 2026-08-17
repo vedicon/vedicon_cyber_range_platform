@@ -7,7 +7,7 @@
 DEPLOYER_CLI_USER: "to_define"
 
 # git root directory (shared across all CODENAME-SCENARIOs)
-DEPLOYER_CLI__DST_GIT_DIR: "/home/{{ DEPLOYER_CLI_USER }}/range42/"
+DEPLOYER_CLI__DST_GIT_DIR: "/home/{{ DEPLOYER_CLI_USER }}/vedicon/"
 
 # git branch to clone (default: main)
 GIT_BRANCH: "main"

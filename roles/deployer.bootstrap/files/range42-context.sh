@@ -1,17 +1,17 @@
 #!/usr/bin/env zsh
 ################################################################################
-# range42-context — workspace context manager (zsh function)
+# vedicon-context — workspace context manager (zsh function)
 #
 # This file is SOURCED in .zshrc, not executed as a script.
 # All functions run in the current shell process — they can modify
 # environment variables, source files, and update the prompt.
 #
 # Usage:
-#   range42-context list                          — list available workspaces
-#   range42-context current                       — show active workspace
-#   range42-context use <codename> <scenario>     — switch workspace (T46)
-#   range42-context ssh-reload                    — reload SSH keys (T45)
-#   range42-context help                          — show help
+#   vedicon-context list                          — list available workspaces
+#   vedicon-context current                       — show active workspace
+#   vedicon-context use <codename> <scenario>     — switch workspace (T46)
+#   vedicon-context ssh-reload                    — reload SSH keys (T45)
+#   vedicon-context help                          — show help
 #
 # Sourced by deployer.bootstrap via .zshrc (T47)
 #
@@ -21,21 +21,21 @@
 # constants
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
-RANGE42_SSH_CONFIG_FILE="$HOME/.ssh/config"
-RANGE42_SSH_BEGIN_MARK='^#### BEGIN RANGE42 INCLUDE'
-RANGE42_SSH_END_MARK='^#### END RANGE42 INCLUDE'
-RANGE42_CONFIG_BASE_DIR="${RANGE42_CONFIG_BASE_DIR:-$HOME/range42.config}"
+vedicon_SSH_CONFIG_FILE="$HOME/.ssh/config"
+vedicon_SSH_BEGIN_MARK='^#### BEGIN vedicon INCLUDE'
+vedicon_SSH_END_MARK='^#### END vedicon INCLUDE'
+vedicon_CONFIG_BASE_DIR="${vedicon_CONFIG_BASE_DIR:-$HOME/vedicon.config}"
 
 # banner on load
-_r42_last_workspace="$(sed -n "/$RANGE42_SSH_BEGIN_MARK/,/$RANGE42_SSH_END_MARK/{/^[[:space:]]*Include /{s@.*config_range42-@@;s@[[:space:]].*@@;p;}}" "$RANGE42_SSH_CONFIG_FILE" 2>/dev/null | head -1)"
+_r42_last_workspace="$(sed -n "/$vedicon_SSH_BEGIN_MARK/,/$vedicon_SSH_END_MARK/{/^[[:space:]]*Include /{s@.*config_vedicon-@@;s@[[:space:]].*@@;p;}}" "$vedicon_SSH_CONFIG_FILE" 2>/dev/null | head -1)"
 printf "\n\033[1;32m  deployer-cli ready\033[0m\n"
 if [[ -n "$_r42_last_workspace" ]]; then
     # split CODENAME-SCENARIO: scenario is after the last known separator
     local _last_scenario _last_codename
-    for _sd in "$RANGE42_CONFIG_BASE_DIR/$_r42_last_workspace"/; do
+    for _sd in "$vedicon_CONFIG_BASE_DIR/$_r42_last_workspace"/; do
         if [[ -d "$_sd" ]]; then
-            # find scenario from scenario dir in range42-playbooks
-            for _pd in "$HOME/range42/range42-playbooks/scenarios"/*/; do
+            # find scenario from scenario dir in vedicon-vedicon_playbook
+            for _pd in "$HOME/vedicon/vedicon-vedicon_playbook/scenarios"/*/; do
                 _last_scenario="$(basename "$_pd")"
                 if [[ "$_r42_last_workspace" == *"-${_last_scenario}" ]]; then
                     _last_codename="${_r42_last_workspace%-${_last_scenario}}"
@@ -46,12 +46,12 @@ if [[ -n "$_r42_last_workspace" ]]; then
     done
     if [[ -n "$_last_codename" && -n "$_last_scenario" ]]; then
         printf "\n\033[0;90m  INFO  load previous workspace:\033[0m\n"
-        printf "\033[0;37m        range42-context use %s %s\033[0m\n" "$_last_codename" "$_last_scenario"
+        printf "\033[0;37m        vedicon-context use %s %s\033[0m\n" "$_last_codename" "$_last_scenario"
     fi
 fi
 unset _r42_last_workspace _last_scenario _last_codename
 printf "\n\033[0;90m  INFO  all commands:\033[0m\n"
-printf "\033[0;37m        range42-context help\033[0m\n\n"
+printf "\033[0;37m        vedicon-context help\033[0m\n\n"
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 # display helpers
@@ -78,7 +78,7 @@ _r42_print_warning() {
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context current — show active workspace
+# vedicon-context current — show active workspace
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_current() {
@@ -87,13 +87,13 @@ _r42_current() {
 
     active_targets="$(
         sed -n \
-            "/$RANGE42_SSH_BEGIN_MARK/,/$RANGE42_SSH_END_MARK/ {
+            "/$vedicon_SSH_BEGIN_MARK/,/$vedicon_SSH_END_MARK/ {
             /^[[:space:]]*Include / {
-                s@.*config_range42-@@
+                s@.*config_vedicon-@@
                 s@[[:space:]].*@@
                 p
             }
-        }" "$RANGE42_SSH_CONFIG_FILE" | sort -u
+        }" "$vedicon_SSH_CONFIG_FILE" | sort -u
     )"
 
     if [[ -z "$active_targets" ]]; then
@@ -106,7 +106,7 @@ _r42_current() {
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context list — list available workspaces
+# vedicon-context list — list available workspaces
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_list() {
@@ -117,19 +117,19 @@ _r42_list() {
     local ssh_targets
     ssh_targets="$(
         sed -n \
-            "/$RANGE42_SSH_BEGIN_MARK/,/$RANGE42_SSH_END_MARK/{
+            "/$vedicon_SSH_BEGIN_MARK/,/$vedicon_SSH_END_MARK/{
             /^[[:space:]]*#*[[:space:]]*Include /{
-                s@.*config_range42-@@
+                s@.*config_vedicon-@@
                 s@[[:space:]].*@@
                 p
             }
-        }" "$RANGE42_SSH_CONFIG_FILE" | sort -u
+        }" "$vedicon_SSH_CONFIG_FILE" | sort -u
     )"
 
-    # method 2: from filesystem (range42.config directories)
+    # method 2: from filesystem (vedicon.config directories)
     local fs_targets
     fs_targets="$(
-        ls -1d "$RANGE42_CONFIG_BASE_DIR"/*/ 2>/dev/null |
+        ls -1d "$vedicon_CONFIG_BASE_DIR"/*/ 2>/dev/null |
         xargs -I{} basename {} |
         sort -u
     )"
@@ -144,7 +144,7 @@ _r42_list() {
 
     local target
     local _idx=0
-    local git_dir="${RANGE42_GITDIR__ROOT_DIR:-$HOME/range42}"
+    local git_dir="${vedicon_GITDIR__ROOT_DIR:-$HOME/vedicon}"
 
     echo "  ──────────────────────────────────────────────────────────────"
 
@@ -156,11 +156,11 @@ _r42_list() {
 
         # split workspace name into codename + scenario
         local _scenario="" _codename="" _use_cmd=""
-        for _pd in "${git_dir%/}/range42-playbooks/scenarios"/*/; do
+        for _pd in "${git_dir%/}/vedicon-vedicon_playbook/scenarios"/*/; do
             _scenario="$(basename "$_pd")"
             if [[ "$target" == *"-${_scenario}" ]]; then
                 _codename="${target%-${_scenario}}"
-                _use_cmd="range42-context use ${_codename} ${_scenario}"
+                _use_cmd="vedicon-context use ${_codename} ${_scenario}"
                 break
             fi
             _scenario=""
@@ -180,7 +180,7 @@ _r42_list() {
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context flush known_hosts — remove stale host keys for a workspace
+# vedicon-context flush known_hosts — remove stale host keys for a workspace
 #
 # Extracts all Hostname IPs from the workspace's SSH config file and removes
 # them from known_hosts. This prevents "REMOTE HOST IDENTIFICATION HAS CHANGED"
@@ -195,7 +195,7 @@ _r42_flush_known_hosts() {
     # Source of truth = the scenario manifest (manifest/scenario_vms.json).
     # Only flush IPs of the scenario's VMs — never the Proxmox host (which is
     # referenced as ProxyJump and shouldn't change between deploys).
-    local config_dir="$RANGE42_CONFIG_BASE_DIR/$target"
+    local config_dir="$vedicon_CONFIG_BASE_DIR/$target"
     local scenario_link="$config_dir/scenario"
     if [[ ! -L "$scenario_link" ]]; then
         return 0
@@ -277,7 +277,7 @@ _r42_ssh_add_with_passphrase() {
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context ssh-reload — reload SSH keys for active workspace (T45)
+# vedicon-context ssh-reload — reload SSH keys for active workspace (T45)
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_ssh_reload() {
@@ -305,8 +305,8 @@ _r42_ssh_reload() {
     # vault_pass.txt, missing vault file, decrypt error), $vault_content stays
     # empty and the per-key loop falls back to interactive ssh-add. No abort.
     local vault_file vault_pass_file vault_content=""
-    vault_file="${RANGE42_CONFIG__ROOT_DIR%/}/secrets/default_vault.yml"
-    vault_pass_file="${RANGE42_VAULT_PASSWORD_FILE:-}"
+    vault_file="${vedicon_CONFIG__ROOT_DIR%/}/secrets/default_vault.yml"
+    vault_pass_file="${vedicon_VAULT_PASSWORD_FILE:-}"
 
     if [[ -n "$vault_pass_file" && -f "$vault_pass_file" && -f "$vault_file" ]]; then
         vault_content=$(ansible-vault view "$vault_file" \
@@ -320,8 +320,8 @@ _r42_ssh_reload() {
 
     # parse active ssh config for IdentityFile entries
     # FIX P4: trim leading whitespace from IdentityFile paths
-    grep '^Include ' "$RANGE42_SSH_CONFIG_FILE" |
-        grep 'config_range42' |
+    grep '^Include ' "$vedicon_SSH_CONFIG_FILE" |
+        grep 'config_vedicon' |
         grep -v '^#' |
         sed 's/^Include //' |
         while read -r config_file; do
@@ -363,7 +363,7 @@ _r42_ssh_reload() {
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context use — switch active workspace (T46)
+# vedicon-context use — switch active workspace (T46)
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_use() {
@@ -372,12 +372,12 @@ _r42_use() {
     local scenario="$2"
 
     if [[ -z "$codename" || -z "$scenario" ]]; then
-        _r42_print_fail "usage: range42-context use <codename> <scenario>"
+        _r42_print_fail "usage: vedicon-context use <codename> <scenario>"
         return 1
     fi
 
     local target="${codename}-${scenario}"
-    local config_dir="$RANGE42_CONFIG_BASE_DIR/$target"
+    local config_dir="$vedicon_CONFIG_BASE_DIR/$target"
 
     # verify workspace exists
     if [[ ! -d "$config_dir" ]]; then
@@ -391,69 +391,69 @@ _r42_use() {
 
     #### ssh config switch — comment all, uncomment target
 
-    sed -i "/$RANGE42_SSH_BEGIN_MARK/,/$RANGE42_SSH_END_MARK/ s/^Include /# Include /" \
-        "$RANGE42_SSH_CONFIG_FILE"
+    sed -i "/$vedicon_SSH_BEGIN_MARK/,/$vedicon_SSH_END_MARK/ s/^Include /# Include /" \
+        "$vedicon_SSH_CONFIG_FILE"
     _r42_print_step "commented all active Include lines"
 
-    sed -i "/$RANGE42_SSH_BEGIN_MARK/,/$RANGE42_SSH_END_MARK/ s/^# Include \(.*config_range42-${target}.*\)/Include \1/" \
-        "$RANGE42_SSH_CONFIG_FILE"
+    sed -i "/$vedicon_SSH_BEGIN_MARK/,/$vedicon_SSH_END_MARK/ s/^# Include \(.*config_vedicon-${target}.*\)/Include \1/" \
+        "$vedicon_SSH_CONFIG_FILE"
     _r42_print_step "uncommented Include for $target"
 
-    #### zshrc switch — comment all sourced_range42.sh, uncomment target
+    #### zshrc switch — comment all sourced_vedicon.sh, uncomment target
     # ensures the correct workspace is sourced on next login too
 
-    sed -i 's|^[# ]*source "\(.*sourced_range42\.sh\)"|#source "\1"|' \
+    sed -i 's|^[# ]*source "\(.*sourced_vedicon\.sh\)"|#source "\1"|' \
         "$HOME/.zshrc"
-    _r42_print_step "commented all sourced_range42.sh in .zshrc"
+    _r42_print_step "commented all sourced_vedicon.sh in .zshrc"
 
-    sed -i "s|^#source \"\(.*/${target}/sourced_range42\.sh\)\"|source \"\1\"|" \
+    sed -i "s|^#source \"\(.*/${target}/sourced_vedicon\.sh\)\"|source \"\1\"|" \
         "$HOME/.zshrc"
-    _r42_print_step "uncommented sourced_range42.sh for $target in .zshrc"
+    _r42_print_step "uncommented sourced_vedicon.sh for $target in .zshrc"
 
     #### source the workspace environment directly in this shell (no restart needed)
 
-    local sourced_file="$config_dir/sourced_range42.sh"
+    local sourced_file="$config_dir/sourced_vedicon.sh"
     if [[ -f "$sourced_file" ]]; then
         source "$sourced_file"
         _r42_print_step "sourced $sourced_file"
     else
-        _r42_print_warning "sourced_range42.sh not found in $config_dir"
+        _r42_print_warning "sourced_vedicon.sh not found in $config_dir"
     fi
 
     #### mirror the .zshrc workspace block : add devkit to PATH + gdk alias.
     #### These two lines live in the per-workspace block of .zshrc (see role
     #### workspace.credentials/tasks/03_deploy_sourced_env.yml) so they fire on a
-    #### fresh shell. Without mirroring them here, `range42-context use` from an
+    #### fresh shell. Without mirroring them here, `vedicon-context use` from an
     #### already-loaded shell would leave devkit out of PATH until the user spawns
     #### a new zsh — confusing UX.
-    if [[ -n "$RANGE42_ANSIBLE_ROLES__DEVKITS_DIR" ]]; then
+    if [[ -n "$vedicon_ANSIBLE_ROLES__DEVKITS_DIR" ]]; then
         case ":$PATH:" in
-            *":$RANGE42_ANSIBLE_ROLES__DEVKITS_DIR:"*) ;;
-            *) export PATH="$PATH:$RANGE42_ANSIBLE_ROLES__DEVKITS_DIR" ;;
+            *":$vedicon_ANSIBLE_ROLES__DEVKITS_DIR:"*) ;;
+            *) export PATH="$PATH:$vedicon_ANSIBLE_ROLES__DEVKITS_DIR" ;;
         esac
-        alias gdk="cd $RANGE42_ANSIBLE_ROLES__DEVKITS_DIR"
+        alias gdk="cd $vedicon_ANSIBLE_ROLES__DEVKITS_DIR"
         _r42_print_step "devkit added to PATH (idempotent) + gdk alias defined"
     fi
 
     #### update secrets symlinks in git repos to point to the active workspace
 
-    local git_dir="${RANGE42_GITDIR__ROOT_DIR:-$HOME/range42}"
-    local devkit_secrets="${git_dir%/}/range42-ansible_roles-debug-devkit/secrets"
-    local playbooks_secrets="${git_dir%/}/range42-playbooks/scenarios/${scenario}/secrets"
+    local git_dir="${vedicon_GITDIR__ROOT_DIR:-$HOME/vedicon}"
+    local devkit_secrets="${git_dir%/}/vedicon-ansible_roles-debug-devkit/secrets"
+    local vedicon_playbook_secrets="${git_dir%/}/vedicon-vedicon_playbook/scenarios/${scenario}/secrets"
 
-    if [[ -d "${git_dir%/}/range42-ansible_roles-debug-devkit" ]]; then
+    if [[ -d "${git_dir%/}/vedicon-ansible_roles-debug-devkit" ]]; then
         ln -sfn "$config_dir/secrets" "$devkit_secrets"
         _r42_print_step "updated secrets symlink in devkit → $target"
     else
-        _r42_print_warning "range42-ansible_roles-debug-devkit not found at ${git_dir%/}/range42-ansible_roles-debug-devkit"
+        _r42_print_warning "vedicon-ansible_roles-debug-devkit not found at ${git_dir%/}/vedicon-ansible_roles-debug-devkit"
         _r42_print_warning "  -> devkit scripts (proxmox_vm.*.sh) will not work in this shell"
     fi
-    if [[ -d "${git_dir%/}/range42-playbooks/scenarios/${scenario}" ]]; then
-        ln -sfn "$config_dir/secrets" "$playbooks_secrets"
-        _r42_print_step "updated secrets symlink in playbooks → $target"
+    if [[ -d "${git_dir%/}/vedicon-vedicon_playbook/scenarios/${scenario}" ]]; then
+        ln -sfn "$config_dir/secrets" "$vedicon_playbook_secrets"
+        _r42_print_step "updated secrets symlink in vedicon_playbook → $target"
     else
-        _r42_print_warning "scenario '${scenario}' not found in range42-playbooks (${git_dir%/}/range42-playbooks/scenarios/${scenario})"
-        _r42_print_warning "  -> ansible-playbook calls will fail ; verify the scenario name or pull range42-playbooks"
+        _r42_print_warning "scenario '${scenario}' not found in vedicon-vedicon_playbook (${git_dir%/}/vedicon-vedicon_playbook/scenarios/${scenario})"
+        _r42_print_warning "  -> ansible-playbook calls will fail ; verify the scenario name or pull vedicon-vedicon_playbook"
     fi
 
     #### flush known_hosts for the target workspace (avoid stale host keys on multi-infra)
@@ -464,19 +464,19 @@ _r42_use() {
 
     local vault_pass_file="$config_dir/secrets/vault_pass.txt"
     if [[ -f "$vault_pass_file" ]]; then
-        export RANGE42_VAULT_PASSWORD_FILE="$vault_pass_file"
-        _r42_print_step "exported RANGE42_VAULT_PASSWORD_FILE=$vault_pass_file"
+        export vedicon_VAULT_PASSWORD_FILE="$vault_pass_file"
+        _r42_print_step "exported vedicon_VAULT_PASSWORD_FILE=$vault_pass_file"
     else
         _r42_print_warning "vault_pass.txt not found in $config_dir/secrets/"
     fi
 
     #### export active workspace info
 
-    export RANGE42_ACTIVE_WORKSPACE="$target"
-    export RANGE42_ACTIVE_CONFIG_DIR="$config_dir"
+    export vedicon_ACTIVE_WORKSPACE="$target"
+    export vedicon_ACTIVE_CONFIG_DIR="$config_dir"
 
     #### export ansible config so our settings apply everywhere (suppress warnings etc.)
-    local r42_ansible_cfg="$HOME/range42/range42/ansible.cfg"
+    local r42_ansible_cfg="$HOME/vedicon/vedicon/ansible.cfg"
     if [[ -f "$r42_ansible_cfg" ]]; then
         export ANSIBLE_CONFIG="$r42_ansible_cfg"
         _r42_print_step "exported ANSIBLE_CONFIG=$r42_ansible_cfg"
@@ -484,9 +484,9 @@ _r42_use() {
 
     #### update zsh prompt to show active workspace (green tag)
 
-    export RANGE42_PROMPT_TAG="%F{green}[r42:${target}]%f"
-    if [[ "$PROMPT" != *"RANGE42_PROMPT_TAG"* ]]; then
-        export PROMPT='${RANGE42_PROMPT_TAG} '"${PROMPT}"
+    export vedicon_PROMPT_TAG="%F{green}[r42:${target}]%f"
+    if [[ "$PROMPT" != *"vedicon_PROMPT_TAG"* ]]; then
+        export PROMPT='${vedicon_PROMPT_TAG} '"${PROMPT}"
     fi
 
     #### reload ssh keys
@@ -499,16 +499,16 @@ _r42_use() {
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context show-inventory — show ansible inventory tree
+# vedicon-context show-inventory — show ansible inventory tree
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_show_inventory() {
 
-    local inventory_dir="${RANGE42_ANSIBLE_ROLES__INVENTORY_DIR:-}"
+    local inventory_dir="${vedicon_ANSIBLE_ROLES__INVENTORY_DIR:-}"
 
     if [[ -z "$inventory_dir" ]]; then
-        _r42_print_fail "no active workspace (RANGE42_ANSIBLE_ROLES__INVENTORY_DIR not set)"
-        _r42_print_warning "run: range42-context use <codename> <scenario>"
+        _r42_print_fail "no active workspace (vedicon_ANSIBLE_ROLES__INVENTORY_DIR not set)"
+        _r42_print_warning "run: vedicon-context use <codename> <scenario>"
         return 1
     fi
 
@@ -519,21 +519,21 @@ _r42_show_inventory() {
         return 1
     fi
 
-    _r42_print_section "ansible inventory — ${RANGE42_ACTIVE_WORKSPACE:-unknown}"
+    _r42_print_section "ansible inventory — ${vedicon_ACTIVE_WORKSPACE:-unknown}"
     ansible-inventory -i "$inventory_file" --graph
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context cd — navigate to workspace directories
+# vedicon-context cd — navigate to workspace directories
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_cd() {
     local target="${1:-config}"
-    local config_dir="${RANGE42_ACTIVE_CONFIG_DIR:-}"
+    local config_dir="${vedicon_ACTIVE_CONFIG_DIR:-}"
 
     if [[ -z "$config_dir" ]]; then
         _r42_print_fail "no active workspace"
-        _r42_print_warning "run: range42-context use <codename> <scenario>"
+        _r42_print_warning "run: vedicon-context use <codename> <scenario>"
         return 1
     fi
 
@@ -554,27 +554,27 @@ _r42_cd() {
             ;;
         *)
             _r42_print_fail "unknown target: $target"
-            echo "  usage: range42-context cd [config|scenario|secrets]"
+            echo "  usage: vedicon-context cd [config|scenario|secrets]"
             return 1
             ;;
     esac
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context status — check workspace health
+# vedicon-context status — check workspace health
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_status() {
 
-    local workspace="${RANGE42_ACTIVE_WORKSPACE:-}"
+    local workspace="${vedicon_ACTIVE_WORKSPACE:-}"
     if [[ -z "$workspace" ]]; then
         _r42_print_fail "no active workspace"
-        _r42_print_warning "run: range42-context use <codename> <scenario>"
+        _r42_print_warning "run: vedicon-context use <codename> <scenario>"
         return 1
     fi
 
-    local config_dir="${RANGE42_ACTIVE_CONFIG_DIR:-}"
-    local vault_pass="${RANGE42_VAULT_PASSWORD_FILE:-}"
+    local config_dir="${vedicon_ACTIVE_CONFIG_DIR:-}"
+    local vault_pass="${vedicon_VAULT_PASSWORD_FILE:-}"
     local vault_file="$config_dir/secrets/default_vault.yml"
     local inv_file="$config_dir/inventory/inventory_default.yml"
 
@@ -645,14 +645,14 @@ _r42_status() {
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 # COMMENT BLOCK BEFORE CHORE-DELETE :
-# `range42-context passwords` removed - replaced by `show-vault` (secrets via
+# `vedicon-context passwords` removed - replaced by `show-vault` (secrets via
 # ansible-vault view) + `show-config` (non-secret orientation via summary.txt).
 # Function body kept commented for short-term rollback ; delete entirely in a
 # follow-up chore.
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 # _r42_passwords() {
-#     local config_dir="${RANGE42_ACTIVE_CONFIG_DIR:-}"
+#     local config_dir="${vedicon_ACTIVE_CONFIG_DIR:-}"
 #
 #     if [[ -z "$config_dir" ]]; then
 #         _r42_print_fail "no active workspace"
@@ -676,19 +676,19 @@ _r42_status() {
 # }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context show-vault — show ansible vault contents (decrypted on the fly)
+# vedicon-context show-vault — show ansible vault contents (decrypted on the fly)
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_show_vault() {
-    local config_dir="${RANGE42_ACTIVE_CONFIG_DIR:-}"
+    local config_dir="${vedicon_ACTIVE_CONFIG_DIR:-}"
     if [[ -z "$config_dir" ]]; then
         _r42_print_fail "no active workspace"
-        _r42_print_warning "run: range42-context use <codename> <scenario>"
+        _r42_print_warning "run: vedicon-context use <codename> <scenario>"
         return 1
     fi
 
     local vault_file="${config_dir%/}/secrets/default_vault.yml"
-    local vault_pass_file="${RANGE42_VAULT_PASSWORD_FILE:-${config_dir%/}/secrets/vault_pass.txt}"
+    local vault_pass_file="${vedicon_VAULT_PASSWORD_FILE:-${config_dir%/}/secrets/vault_pass.txt}"
 
     if [[ ! -f "$vault_file" ]]; then
         _r42_print_fail "vault file not found: $vault_file"
@@ -699,19 +699,19 @@ _r42_show_vault() {
         return 1
     fi
 
-    _r42_print_section "ansible vault (credentials + SSH passphrases) — ${RANGE42_ACTIVE_WORKSPACE:-unknown}"
+    _r42_print_section "ansible vault (credentials + SSH passphrases) — ${vedicon_ACTIVE_WORKSPACE:-unknown}"
     ansible-vault view "$vault_file" --vault-password-file "$vault_pass_file"
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context show-config — show workspace orientation (paths + SSH hosts)
+# vedicon-context show-config — show workspace orientation (paths + SSH hosts)
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_show_config() {
-    local config_dir="${RANGE42_ACTIVE_CONFIG_DIR:-}"
+    local config_dir="${vedicon_ACTIVE_CONFIG_DIR:-}"
     if [[ -z "$config_dir" ]]; then
         _r42_print_fail "no active workspace"
-        _r42_print_warning "run: range42-context use <codename> <scenario>"
+        _r42_print_warning "run: vedicon-context use <codename> <scenario>"
         return 1
     fi
 
@@ -722,20 +722,20 @@ _r42_show_config() {
         return 1
     fi
 
-    _r42_print_section "workspace config summary — ${RANGE42_ACTIVE_WORKSPACE:-unknown}"
+    _r42_print_section "workspace config summary — ${vedicon_ACTIVE_WORKSPACE:-unknown}"
     cat "$summary"
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context ssh — quick ssh to a VM by partial name
+# vedicon-context ssh — quick ssh to a VM by partial name
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_ssh() {
     local pattern="$1"
 
     if [[ -z "$pattern" ]]; then
-        _r42_print_fail "usage: range42-context ssh <hostname-pattern>"
-        echo "  example: range42-context ssh wazuh"
+        _r42_print_fail "usage: vedicon-context ssh <hostname-pattern>"
+        echo "  example: vedicon-context ssh wazuh"
         return 1
     fi
 
@@ -747,7 +747,7 @@ _r42_ssh() {
         {
             grep "^Host r42\." "$ssh_config" 2>/dev/null
             grep '^Include ' "$ssh_config" 2>/dev/null \
-                | grep 'config_range42' \
+                | grep 'config_vedicon' \
                 | sed 's/^Include //' \
                 | while IFS= read -r inc; do
                     grep "^Host r42\." "$inc" 2>/dev/null
@@ -779,7 +779,7 @@ _r42_ssh() {
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context deploy — run scenario setup script
+# vedicon-context deploy — run scenario setup script
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_deploy() {
@@ -794,7 +794,7 @@ _r42_deploy() {
     fi
 
     _r42_print_section "deploying scenario"
-    _r42_flush_known_hosts "${RANGE42_ACTIVE_WORKSPACE:-}"
+    _r42_flush_known_hosts "${vedicon_ACTIVE_WORKSPACE:-}"
     _r42_print_step "running: $setup_script"
     echo ""
 
@@ -802,7 +802,7 @@ _r42_deploy() {
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context deploy-vms — deploy VMs only (skip templates)
+# vedicon-context deploy-vms — deploy VMs only (skip templates)
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_deploy_vms() {
@@ -817,7 +817,7 @@ _r42_deploy_vms() {
     fi
 
     _r42_print_section "deploying VMs only (skip templates)"
-    _r42_flush_known_hosts "${RANGE42_ACTIVE_WORKSPACE:-}"
+    _r42_flush_known_hosts "${vedicon_ACTIVE_WORKSPACE:-}"
     _r42_print_step "running: $script"
     echo ""
 
@@ -825,7 +825,7 @@ _r42_deploy_vms() {
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context delete — run scenario delete script
+# vedicon-context delete — run scenario delete script
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_delete() {
@@ -848,7 +848,7 @@ _r42_delete() {
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context reset — run scenario reset script
+# vedicon-context reset — run scenario reset script
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_reset() {
@@ -871,7 +871,7 @@ _r42_reset() {
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context delete-vms — delete VMs only (keep templates)
+# vedicon-context delete-vms — delete VMs only (keep templates)
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_delete_vms() {
@@ -897,16 +897,16 @@ _r42_delete_vms() {
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 # Resolve the absolute directory of the active scenario (target of the
-# $RANGE42_ACTIVE_CONFIG_DIR/scenario symlink).
+# $vedicon_ACTIVE_CONFIG_DIR/scenario symlink).
 # Echoes the path on stdout ; errors go to stderr ; returns 0/1.
 #
 # Uses zsh native ${var:A} when available — no external readlink dep, which has
 # proved unreliable inside some freshly-sourced function call chains on the deployer.
 # Falls back to readlink -f for bash callers.
 _r42_active_scenario_dir() {
-    local config_dir="${RANGE42_ACTIVE_CONFIG_DIR:-}"
+    local config_dir="${vedicon_ACTIVE_CONFIG_DIR:-}"
     if [[ -z "$config_dir" ]]; then
-        _r42_print_fail "no active workspace (RANGE42_ACTIVE_CONFIG_DIR is empty)" >&2
+        _r42_print_fail "no active workspace (vedicon_ACTIVE_CONFIG_DIR is empty)" >&2
         return 1
     fi
     local scenario_dir="$config_dir/scenario"
@@ -973,7 +973,7 @@ _r42_apply_to_scenario_vms() {
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context start / stop / stop-force / pause / resume
+# vedicon-context start / stop / stop-force / pause / resume
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_start()      { _r42_apply_to_scenario_vms "proxmox_vm.vm_id.start.to.jsons.sh"      "starting"; }
@@ -983,7 +983,7 @@ _r42_pause()      { _r42_apply_to_scenario_vms "proxmox_vm.vm_id.pause.to.jsons.
 _r42_resume()     { _r42_apply_to_scenario_vms "proxmox_vm.vm_id.resume.to.jsons.sh"     "resuming"; }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context snapshot — snapshot all VMs of the active scenario
+# vedicon-context snapshot — snapshot all VMs of the active scenario
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_snapshot() {
@@ -1002,18 +1002,18 @@ _r42_snapshot() {
     _r42_print_step "snapshot : $snap_name"
     echo ""
 
-    jq -c --arg name "$snap_name" --arg desc "range42 snapshot of $scenario_name" \
+    jq -c --arg name "$snap_name" --arg desc "vedicon snapshot of $scenario_name" \
         '.vms[] | {vm_id: .vm_id, vm_snapshot_name: $name, vm_snapshot_description: $desc}' "$manifest" \
         | proxmox_snapshot_vm.vm_id.create_snapshot.to.jsons.sh
 
     echo ""
     _r42_print_check "snapshot created: $snap_name"
-    echo "  revert with: range42-context revert $snap_name"
-    echo "  list snapshots with: range42-context snapshot-list"
+    echo "  revert with: vedicon-context revert $snap_name"
+    echo "  list snapshots with: vedicon-context snapshot-list"
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context snapshot-list — list snapshots of all VMs of the active scenario
+# vedicon-context snapshot-list — list snapshots of all VMs of the active scenario
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_snapshot_list() {
@@ -1030,11 +1030,11 @@ _r42_snapshot_list() {
 
     echo ""
     _r42_print_check "snapshot listing done"
-    echo "  revert with: range42-context revert <snapshot_name>"
+    echo "  revert with: vedicon-context revert <snapshot_name>"
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context revert — revert all VMs of the active scenario to a snapshot
+# vedicon-context revert — revert all VMs of the active scenario to a snapshot
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_revert() {
@@ -1045,8 +1045,8 @@ _r42_revert() {
     snap_name="${1:-}"
     if [[ -z "$snap_name" ]]; then
         _r42_print_fail "snapshot name required"
-        echo "  usage: range42-context revert <snapshot_name>"
-        echo "  list snapshots with: range42-context snapshot-list"
+        echo "  usage: vedicon-context revert <snapshot_name>"
+        echo "  list snapshots with: vedicon-context snapshot-list"
         return 1
     fi
 
@@ -1065,15 +1065,15 @@ _r42_revert() {
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context delete-everything — delete VMs + templates ACROSS ALL scenarios
+# vedicon-context delete-everything — delete VMs + templates ACROSS ALL scenarios
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_delete_everything() {
-    local git_dir="${RANGE42_GITDIR__ROOT_DIR:-$HOME/range42}"
-    local playbooks_dir="$git_dir/range42-playbooks"
+    local git_dir="${vedicon_GITDIR__ROOT_DIR:-$HOME/vedicon}"
+    local vedicon_playbook_dir="$git_dir/vedicon-vedicon_playbook"
 
-    if [[ ! -d "$playbooks_dir" ]]; then
-        _r42_print_fail "range42-playbooks not found at: $playbooks_dir"
+    if [[ ! -d "$vedicon_playbook_dir" ]]; then
+        _r42_print_fail "vedicon-vedicon_playbook not found at: $vedicon_playbook_dir"
         return 1
     fi
 
@@ -1081,10 +1081,10 @@ _r42_delete_everything() {
     local manifests=()
     while IFS= read -r m; do
         [[ -n "$m" ]] && manifests+=("$m")
-    done < <(find "$playbooks_dir/scenarios" -mindepth 3 -maxdepth 3 -name 'scenario_vms.json' -path '*/manifest/*' 2>/dev/null | sort)
+    done < <(find "$vedicon_playbook_dir/scenarios" -mindepth 3 -maxdepth 3 -name 'scenario_vms.json' -path '*/manifest/*' 2>/dev/null | sort)
 
     if [[ ${#manifests[@]} -eq 0 ]]; then
-        _r42_print_fail "no scenario manifest found under $playbooks_dir/scenarios/*/manifest/"
+        _r42_print_fail "no scenario manifest found under $vedicon_playbook_dir/scenarios/*/manifest/"
         return 1
     fi
 
@@ -1157,11 +1157,11 @@ _r42_delete_everything() {
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# catalog-try helpers (used by `range42-context catalog-try <path>`)
+# catalog-try helpers (used by `vedicon-context catalog-try <path>`)
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 # Resolve a logical catalog path (e.g. `docker/_ctf/hello`) to an absolute path
-# under range42-catalog/.
+# under vedicon-catalog/.
 #
 # The logical path skips the numbered layer prefix : the operator types
 # `docker/_ctf/hello` instead of `03_container_layer/docker/_ctf/hello`. This
@@ -1180,11 +1180,11 @@ _r42_catalog_resolve_path() {
         return 1
     fi
 
-    # Anchor on RANGE42_INVENTORY (set by the scenario env) so the resolver is not
-    # restricted to a single catalog subtree. Falls back to $HOME/range42/range42-catalog.
-    local catalog_root="${RANGE42_INVENTORY:-$HOME/range42/range42-catalog}"
+    # Anchor on vedicon_INVENTORY (set by the scenario env) so the resolver is not
+    # restricted to a single catalog subtree. Falls back to $HOME/vedicon/vedicon-catalog.
+    local catalog_root="${vedicon_INVENTORY:-$HOME/vedicon/vedicon-catalog}"
     if [[ ! -d "$catalog_root" ]]; then
-        _r42_print_fail "range42-catalog not found at $catalog_root (set RANGE42_INVENTORY)" >&2
+        _r42_print_fail "vedicon-catalog not found at $catalog_root (set vedicon_INVENTORY)" >&2
         return 1
     fi
 
@@ -1298,14 +1298,14 @@ _r42_catalog_try_yml_get() {
     fi
 }
 
-# List all catalog elements that can be run via `range42-context catalog-try`.
-# Scans range42-catalog/NN_*_layer/.../ for directories that look deployable
+# List all catalog elements that can be run via `vedicon-context catalog-try`.
+# Scans vedicon-catalog/NN_*_layer/.../ for directories that look deployable
 # (compose.yml / docker-compose.yml / Makefile) and marks those carrying a
 # `catalog_try.yml` contract as L2 (strict smoke) vs L1 (default fallback).
 #
 # Output is meant for the operator to discover what's runnable. Logical paths
 # (with the NN_*_layer/ prefix stripped) are ready to copy-paste into a
-# `range42-context catalog-try <path>` invocation.
+# `vedicon-context catalog-try <path>` invocation.
 #
 # Optional args : two logical-path prefixes to scope the listing.
 #   $1 = include_prefix : if set, keep only elements whose rel_path starts with it
@@ -1318,10 +1318,10 @@ _r42_catalog_try_list() {
     local include_prefix="${1:-}"
     local exclude_prefix="${2:-}"
 
-    local catalog_root="${RANGE42_INVENTORY:-$HOME/range42/range42-catalog}"
+    local catalog_root="${vedicon_INVENTORY:-$HOME/vedicon/vedicon-catalog}"
     if [[ ! -d "$catalog_root" ]]; then
-        _r42_print_fail "range42-catalog not found at $catalog_root"
-        _r42_print_step "set RANGE42_INVENTORY or activate a workspace : range42-context use <codename> <scenario>"
+        _r42_print_fail "vedicon-catalog not found at $catalog_root"
+        _r42_print_step "set vedicon_INVENTORY or activate a workspace : vedicon-context use <codename> <scenario>"
         return 1
     fi
 
@@ -1397,7 +1397,7 @@ _r42_catalog_try_list() {
     printf "    ${L2_COLOR}[L2]${COLOR_RESET}  catalog_try.yml present  - strict smoke check (signature grep or HTTP poll)\n"
     printf "    ${L1_COLOR}[L1]${COLOR_RESET}  no contract              - best-effort fallback (docker ps -a, any container)\n"
     echo ""
-    _r42_print_step "run any : range42-context catalog-try <logical_path>"
+    _r42_print_step "run any : vedicon-context catalog-try <logical_path>"
 }
 
 # Convenience : list only admin-scoped docker elements (docker/admin/*).
@@ -1406,14 +1406,14 @@ _r42_catalog_try_list_admin() {
 }
 
 
-# Main orchestrator : `range42-context catalog-try <path>`.
+# Main orchestrator : `vedicon-context catalog-try <path>`.
 # Overwrites the catalog_try test VM, deploys a single catalog element on it,
 # and runs a smoke check based on the element's optional catalog_try.yml.
 #
 # Usage : _r42_catalog_try <path>
 #   <path> : logical catalog path (e.g. docker/_ctf/hello)
 #
-# Requires : active scenario = catalog_try (range42-context use <codename> catalog_try first).
+# Requires : active scenario = catalog_try (vedicon-context use <codename> catalog_try first).
 _r42_catalog_try() {
     # IMPORTANT : do NOT name this local var "path" — zsh ties $PATH (string) to
     # $path (array). Declaring `local path="$1"` silently overwrites PATH in this
@@ -1421,8 +1421,8 @@ _r42_catalog_try() {
     # See : zsh manual, typeset -T (tied parameters).
     local catalog_path="$1"
     if [[ -z "$catalog_path" ]]; then
-        _r42_print_fail "usage: range42-context catalog-try <path>"
-        echo "  example : range42-context catalog-try docker/_ctf/hello" >&2
+        _r42_print_fail "usage: vedicon-context catalog-try <path>"
+        echo "  example : vedicon-context catalog-try docker/_ctf/hello" >&2
         return 1
     fi
 
@@ -1439,29 +1439,29 @@ _r42_catalog_try() {
     # Auto-switch policy (strict same-codename) :
     #   - active workspace IS catalog_try   -> continue
     #   - active workspace IS NOT catalog_try but <codename>-catalog_try exists for
-    #     the SAME codename                 -> prompt, then auto `range42-context use`
+    #     the SAME codename                 -> prompt, then auto `vedicon-context use`
     #   - active workspace IS NOT catalog_try and <codename>-catalog_try is absent
     #                                       -> fail loud + suggest bootstrap (no
     #                                          auto-switch to OTHER codenames'
     #                                          catalog_try workspaces : the inventory,
     #                                          vault, and ssh config wouldn't match)
-    local config_dir="${RANGE42_ACTIVE_CONFIG_DIR:-}"
+    local config_dir="${vedicon_ACTIVE_CONFIG_DIR:-}"
     local active_scenario=""
     _r42_print_step "active config dir : ${config_dir:-<empty>}"
 
-    # Stale env var recovery : if RANGE42_ACTIVE_CONFIG_DIR points to a dir
-    # that no longer exists (e.g. the operator moved or deleted ~/range42.config
+    # Stale env var recovery : if vedicon_ACTIVE_CONFIG_DIR points to a dir
+    # that no longer exists (e.g. the operator moved or deleted ~/vedicon.config
     # after the env was set, without re-sourcing the shell), treat as "no active
     # workspace" and fall through to the auto-detection logic below. Saves the
     # operator from having to manually `exec zsh` first.
     if [[ -n "$config_dir" ]] && [[ ! -d "$config_dir" ]]; then
-        _r42_print_warning "RANGE42_ACTIVE_CONFIG_DIR points to a non-existent dir : ${config_dir}"
+        _r42_print_warning "vedicon_ACTIVE_CONFIG_DIR points to a non-existent dir : ${config_dir}"
         _r42_print_step "(stale env var ; treating as no active workspace)"
         config_dir=""
     fi
 
     if [[ -z "$config_dir" ]]; then
-        _r42_print_fail "no active workspace (RANGE42_ACTIVE_CONFIG_DIR is empty)"
+        _r42_print_fail "no active workspace (vedicon_ACTIVE_CONFIG_DIR is empty)"
 
         # Enumerate any catalog_try workspaces present locally — the auto-switch
         # decision below is keyed on how many we find.
@@ -1472,7 +1472,7 @@ _r42_catalog_try() {
         # globs as literal by default, which the `-d` check below filters out).
         setopt local_options null_glob 2>/dev/null || true
         local _ct_workspaces=() _ws_dir
-        for _ws_dir in "$HOME/range42.config/"*-catalog_try ; do
+        for _ws_dir in "$HOME/vedicon.config/"*-catalog_try ; do
             [[ -d "$_ws_dir" ]] || continue
             _ct_workspaces+=("${_ws_dir##*/}")
         done
@@ -1495,7 +1495,7 @@ _r42_catalog_try() {
             # Refresh local state. active_scenario is intentionally set to the
             # constant : we know what we just activated, and the next check
             # `[[ -z "$active_scenario" ]]` below skips the redundant lookup.
-            config_dir="${RANGE42_ACTIVE_CONFIG_DIR:-}"
+            config_dir="${vedicon_ACTIVE_CONFIG_DIR:-}"
             active_scenario="catalog_try"
 
         elif [[ ${#_ct_workspaces[@]} -gt 1 ]]; then
@@ -1508,34 +1508,34 @@ _r42_catalog_try() {
             for _ws in "${_ct_workspaces[@]}" ; do
                 printf "      %s\n" "$_ws" >&2
             done
-            _r42_print_step "activate one : range42-context use <codename> catalog_try"
-            _r42_print_step "then re-run  : range42-context catalog-try ${_q_path}"
+            _r42_print_step "activate one : vedicon-context use <codename> catalog_try"
+            _r42_print_step "then re-run  : vedicon-context catalog-try ${_q_path}"
             return 1
 
-        elif [[ -d "$HOME/range42.config" ]] && [[ -n "$(ls -A "$HOME/range42.config" 2>/dev/null)" ]]; then
+        elif [[ -d "$HOME/vedicon.config" ]] && [[ -n "$(ls -A "$HOME/vedicon.config" 2>/dev/null)" ]]; then
             # Some workspaces exist, but none for catalog_try : list + suggest
             # either activating an existing one or bootstrapping a catalog_try one.
             local _q_path="'${catalog_path//\'/\'\\\'\'}'"
-            _r42_print_step "available workspaces in ~/range42.config/ (none are catalog_try) :"
-            ls "$HOME/range42.config/" | sed 's/^/      /' >&2
+            _r42_print_step "available workspaces in ~/vedicon.config/ (none are catalog_try) :"
+            ls "$HOME/vedicon.config/" | sed 's/^/      /' >&2
             _r42_print_step "options :"
-            _r42_print_step "  1) activate an existing : range42-context use <codename> <scenario>"
-            _r42_print_step "  2) bootstrap a new catalog_try : python3 ${RANGE42_GITDIR__ROOT_DIR:-$HOME/range42}/range42/range42-init.py --catalog-try ${_q_path}"
+            _r42_print_step "  1) activate an existing : vedicon-context use <codename> <scenario>"
+            _r42_print_step "  2) bootstrap a new catalog_try : python3 ${vedicon_GITDIR__ROOT_DIR:-$HOME/vedicon}/vedicon/vedicon-init.py --catalog-try ${_q_path}"
             return 1
 
         else
             # No workspaces at all : auto-launch the wizard with the catalog path
             # threaded through. The 2s wait gives the operator a chance to Ctrl+C
             # if the auto-bootstrap is not desired.
-            _r42_print_step "no infrastructure configured yet (~/range42.config is empty)"
-            local wizard_path="${RANGE42_GITDIR__ROOT_DIR:-$HOME/range42}/range42/range42-init.py"
+            _r42_print_step "no infrastructure configured yet (~/vedicon.config is empty)"
+            local wizard_path="${vedicon_GITDIR__ROOT_DIR:-$HOME/vedicon}/vedicon/vedicon-init.py"
             if [[ ! -f "$wizard_path" ]]; then
                 # Wizard not present : fall back to manual suggestion (with
                 # defensive single-quote escape on catalog_path).
                 local _q_path="'${catalog_path//\'/\'\\\'\'}'"
                 _r42_print_fail "wizard not found at ${wizard_path}"
-                _r42_print_step "clone range42 first, then run manually :"
-                _r42_print_step "  cd ${RANGE42_GITDIR__ROOT_DIR:-$HOME/range42}/range42 && python3 range42-init.py --catalog-try ${_q_path}"
+                _r42_print_step "clone vedicon first, then run manually :"
+                _r42_print_step "  cd ${vedicon_GITDIR__ROOT_DIR:-$HOME/vedicon}/vedicon && python3 vedicon-init.py --catalog-try ${_q_path}"
                 return 1
             fi
             echo ""
@@ -1557,7 +1557,7 @@ _r42_catalog_try() {
             _r42_print_fail "could not resolve active scenario (see error above)"
             echo "  Tried : ${config_dir}/scenario" >&2
             _r42_print_step "workspace appears corrupted ; re-bootstrap with the same element :"
-            _r42_print_step "  cd ${RANGE42_GITDIR__ROOT_DIR:-$HOME/range42}/range42 && python3 range42-init.py --catalog-try ${_q_path}"
+            _r42_print_step "  cd ${vedicon_GITDIR__ROOT_DIR:-$HOME/vedicon}/vedicon && python3 vedicon-init.py --catalog-try ${_q_path}"
             return 1
         }
     fi
@@ -1570,7 +1570,7 @@ _r42_catalog_try() {
         local active_workspace="${config_dir##*/}"
         local active_codename="${active_workspace%-${active_scenario}}"
         local target_workspace="${active_codename}-catalog_try"
-        local target_dir="$HOME/range42.config/${target_workspace}"
+        local target_dir="$HOME/vedicon.config/${target_workspace}"
 
         if [[ -d "$target_dir" ]]; then
             _r42_print_warning "active scenario is '${active_scenario}', not 'catalog_try'"
@@ -1586,7 +1586,7 @@ _r42_catalog_try() {
             fi
             _r42_use "$active_codename" "catalog_try" || return 1
             # refresh local vars after the switch (config_dir + scenario changed)
-            config_dir="${RANGE42_ACTIVE_CONFIG_DIR:-}"
+            config_dir="${vedicon_ACTIVE_CONFIG_DIR:-}"
             active_scenario="catalog_try"
         else
             # Defensive quote (same idiom as the "no workspace" branch above) :
@@ -1595,10 +1595,10 @@ _r42_catalog_try() {
             _r42_print_fail "active scenario is '${active_scenario}', and no catalog_try workspace exists for codename '${active_codename}'"
             _r42_print_step "options :"
             _r42_print_step "  1) bootstrap a catalog_try workspace via the wizard :"
-            _r42_print_step "     cd ${RANGE42_GITDIR__ROOT_DIR:-$HOME/range42}/range42 && python3 range42-init.py --catalog-try ${_q_path}"
+            _r42_print_step "     cd ${vedicon_GITDIR__ROOT_DIR:-$HOME/vedicon}/vedicon && python3 vedicon-init.py --catalog-try ${_q_path}"
             _r42_print_step "  2) if you already created a catalog_try workspace, activate + re-run :"
-            _r42_print_step "     range42-context use ${active_codename} catalog_try"
-            _r42_print_step "     range42-context catalog-try ${_q_path}"
+            _r42_print_step "     vedicon-context use ${active_codename} catalog_try"
+            _r42_print_step "     vedicon-context catalog-try ${_q_path}"
             # Info-only listing of catalog_try workspaces on OTHER codenames.
             # Never auto-switch to those (Proxmox API + inventory + vault would
             # mismatch the active infra context).
@@ -1606,7 +1606,7 @@ _r42_catalog_try() {
             # in bash thanks to redirect + || true).
             setopt local_options null_glob 2>/dev/null || true
             local _other_ws _other_list=""
-            for _other_ws in "$HOME/range42.config/"*-catalog_try ; do
+            for _other_ws in "$HOME/vedicon.config/"*-catalog_try ; do
                 [[ -d "$_other_ws" ]] || continue
                 local _other_name="${_other_ws##*/}"
                 [[ "$_other_name" == "${target_workspace}" ]] && continue
@@ -1698,7 +1698,7 @@ _r42_catalog_try() {
     local deploy_script="${scenario_dir}/catalog_try.element_deploy.sh"
     if [[ ! -f "$deploy_script" ]]; then
         _r42_print_fail "deploy script not found: ${deploy_script}"
-        _r42_print_step "expected file from catalog_try scenario - pull latest range42-playbooks ?"
+        _r42_print_step "expected file from catalog_try scenario - pull latest vedicon-vedicon_playbook ?"
         return 1
     fi
     local use_makefile="false"
@@ -1749,21 +1749,21 @@ _r42_catalog_try() {
     printf "    \033[34m➜\033[0m Smoke check   : ${_smoke_color_open}%s\033[0m  \033[1;32m✓ PASS\033[0m\n" "$_smoke_label"
 
     _r42_print_section "next steps"
-    _r42_print_step "deploy again  : range42-context catalog-try ${catalog_path}"
-    _r42_print_step "connect to VM : range42-context ssh ${vm_ssh}"
+    _r42_print_step "deploy again  : vedicon-context catalog-try ${catalog_path}"
+    _r42_print_step "connect to VM : vedicon-context ssh ${vm_ssh}"
     _r42_print_step "                (alt : ssh ${vm_ssh})"
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context init — launch the setup wizard from anywhere
+# vedicon-context init — launch the setup wizard from anywhere
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_init() {
-    local git_dir="${RANGE42_GITDIR__ROOT_DIR:-$HOME/range42}"
+    local git_dir="${vedicon_GITDIR__ROOT_DIR:-$HOME/vedicon}"
     local init_script=""
     local search_paths=(
-        "${git_dir%/}/range42/range42-init.py"
-        "${git_dir%/}/range42-init.py"
+        "${git_dir%/}/vedicon/vedicon-init.py"
+        "${git_dir%/}/vedicon-init.py"
     )
     for p in "${search_paths[@]}"; do
         if [[ -f "$p" ]]; then
@@ -1773,7 +1773,7 @@ _r42_init() {
     done
 
     if [[ -z "$init_script" ]]; then
-        _r42_print_fail "range42-init.py not found"
+        _r42_print_fail "vedicon-init.py not found"
         _r42_print_warning "searched:"
         for p in "${search_paths[@]}"; do
             _r42_print_warning "  $p"
@@ -1785,16 +1785,16 @@ _r42_init() {
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context debug — toggle verbose/skip output in ansible.cfg
+# vedicon-context debug — toggle verbose/skip output in ansible.cfg
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_debug() {
     # resolve ansible.cfg path:
-    #   1. ANSIBLE_CONFIG (exported by range42-context use)
-    #   2. RANGE42_GITDIR__ROOT_DIR/range42/ansible.cfg (custom install path from wizard)
-    #   3. $HOME/range42/range42/ansible.cfg (default fallback)
-    local git_dir="${RANGE42_GITDIR__ROOT_DIR:-$HOME/range42}"
-    local cfg="${ANSIBLE_CONFIG:-${git_dir%/}/range42/ansible.cfg}"
+    #   1. ANSIBLE_CONFIG (exported by vedicon-context use)
+    #   2. vedicon_GITDIR__ROOT_DIR/vedicon/ansible.cfg (custom install path from wizard)
+    #   3. $HOME/vedicon/vedicon/ansible.cfg (default fallback)
+    local git_dir="${vedicon_GITDIR__ROOT_DIR:-$HOME/vedicon}"
+    local cfg="${ANSIBLE_CONFIG:-${git_dir%/}/vedicon/ansible.cfg}"
 
     if [[ ! -f "$cfg" ]]; then
         _r42_print_fail "ansible.cfg not found: $cfg"
@@ -1816,7 +1816,7 @@ _r42_debug() {
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# range42-context help
+# vedicon-context help
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
 _r42_help() {
@@ -1826,7 +1826,7 @@ _r42_help() {
     local R="\033[0m"     # reset
 
     echo ""
-    printf "  ${N}usage:${R} range42-context <command>\n"
+    printf "  ${N}usage:${R} vedicon-context <command>\n"
     echo ""
     printf "  ${C}workspace${R}\n"
     printf "    ${N}list${R}                           ${D}list available workspaces${R}\n"
@@ -1837,7 +1837,7 @@ _r42_help() {
     echo ""
     printf "  ${C}navigation${R}\n"
     printf "    ${N}cd config${R}                      ${D}go to workspace config directory${R}\n"
-    printf "    ${N}cd scenario${R}                    ${D}go to scenario playbooks directory${R}\n"
+    printf "    ${N}cd scenario${R}                    ${D}go to scenario vedicon_playbook directory${R}\n"
     printf "    ${N}cd secrets${R}                     ${D}go to vault/secrets directory${R}\n"
     echo ""
     printf "  ${C}operations${R}\n"
@@ -1875,10 +1875,10 @@ _r42_help() {
 }
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-# main entry point — range42-context function
+# main entry point — vedicon-context function
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### ####
 
-range42-context() {
+vedicon-context() {
 
     local cmd="${1:-help}"
     shift 2>/dev/null

@@ -22,7 +22,7 @@
 #   │           └── r42.CODENAME-SCENARIO-student-key_bob_{1..N} (+.pub)
 #   └── summary.txt           ← workspace orientation : paths + SSH hosts
 #                                (secrets moved to the ansible vault ; see
-#                                 `range42-context show-vault` on the deployer-cli)
+#                                 `vedicon-context show-vault` on the deployer-cli)
 #
 # Variables consumed:
 #   - INFRASTRUCTURE_CODENAME       (required)

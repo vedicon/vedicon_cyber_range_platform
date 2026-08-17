@@ -1,6 +1,6 @@
-# RANGE42
+# vedicon
 
-**range42** is a modular cyber range platform based on Proxmox + Ansible for deploying reproducible offensive, defensive and hybrid training environments.
+**vedicon** is a modular cyber range platform based on Proxmox + Ansible for deploying reproducible offensive, defensive and hybrid training environments.
 One operator workstation can manage multiple Proxmox infrastructures, each running multiple lab scenarios. Everything is infrastructure-as-code.
 
 Start with [GETTING_STARTED.md](GETTING_STARTED.md) for a hands-on walkthrough, or browse the [GLOSSARY](GLOSSARY.md) for terminology (codename, scenario, workspace, jump host, etc.).
@@ -26,33 +26,33 @@ Start with [GETTING_STARTED.md](GETTING_STARTED.md) for a hands-on walkthrough, 
 
 ## Quick start
 
-The recommended way to deploy range42 is the setup wizard:
+The recommended way to deploy vedicon is the setup wizard:
 
 ```bash
 sudo apt-get update ; apt-get upgrade -y
 sudo apt-get install python3-venv git
-mkdir -p $HOME/range42 && cd $HOME/range42
-git clone https://github.com/range42/range42.git
-cd range42
-./range42-init.py
+mkdir -p $HOME/vedicon && cd $HOME/vedicon
+git clone https://github.com/vedicon/vedicon_cyber_range_platform_cyber_range_platform.git
+cd vedicon
+./vedicon-init.py
 ```
 
-![range42 setup wizard](docs/img/old/0002.png)
+![vedicon setup wizard](docs/img/old/0002.png)
 
 The wizard walks you through preflight checks, Proxmox connection, network configuration and the full deployment.
 
 For the complete walkthrough (prerequisites, every wizard step explained, SSH access, daily operations, troubleshooting), see [GETTING_STARTED.md](GETTING_STARTED.md).
 
-If you'd rather drive the playbooks yourself, see [Manual setup (advanced)](GETTING_STARTED.md#manual-setup-advanced).
+If you'd rather drive the vedicon_playbook yourself, see [Manual setup (advanced)](GETTING_STARTED.md#manual-setup-advanced).
 
 ## Supported platforms
 
-range42 is developed and tested on Ubuntu LTS (Desktop / Server) and is also expected to work on Debian 13. Full details and prerequisites:
+vedicon is developed and tested on Ubuntu LTS (Desktop / Server) and is also expected to work on Debian 13. Full details and prerequisites:
 [GETTING_STARTED.md - Prerequisites](GETTING_STARTED.md#prerequisites).
 
 ## Daily operations
 
-Once deployed, you manage your lab with the `range42-context` shell tool (switch workspaces, deploy / undeploy, SSH into VMs, view credentials, etc.). The full reference is in
+Once deployed, you manage your lab with the `vedicon-context` shell tool (switch workspaces, deploy / undeploy, SSH into VMs, view credentials, etc.). The full reference is in
 [GETTING_STARTED.md - What you can do after deploy](GETTING_STARTED.md#what-you-can-do-after-deploy).
 
 ---
@@ -68,26 +68,26 @@ Once deployed, you manage your lab with the `range42-context` shell tool (switch
 
 ## Architecture overview
 
-A range42 deployment can be driven in two complementary ways:
+A vedicon deployment can be driven in two complementary ways:
 
 **Web UI path** (visual, recommended for day-to-day operations):
 
 ```
-  ┌─ range42-deployer-ui (Vue 3 + VueFlow) ──────────────────┐
+  ┌─ vedicon-deployer-ui (Vue 3 + VueFlow) ──────────────────┐
   │  Visual topology canvas — drag-and-drop lab design        │
   └──────────────────────────┬───────────────────────────────┘
                              │ REST + WebSocket
   ┌──────────────────────────▼───────────────────────────────┐
-  │  range42-api-gw (Kong gateway)                           │
+  │  vedicon-api-gw (Kong gateway)                           │
   │  Auth, ACLs, rate-limiting                               │
   └──────────────────────────┬───────────────────────────────┘
                              │
   ┌──────────────────────────▼───────────────────────────────┐
-  │  range42-backend-api (FastAPI)                           │
+  │  vedicon-backend-api (FastAPI)                           │
   │  80 REST endpoints + /ws/status stream                   │
   └──────────┬───────────────────────┬───────────────────────┘
              │                       │
-  range42-playbooks          range42-catalog
+  vedicon-vedicon_playbook          vedicon-catalog
   (scenarios + bundles)      (roles, Docker, CTF content)
              │
              ▼
@@ -98,18 +98,18 @@ A range42 deployment can be driven in two complementary ways:
 **CLI path** (direct, for advanced/scripted use):
 
 ```
-  [ deployer-cli (range42-context) ]
+  [ deployer-cli (vedicon-context) ]
      │
      ├─ runs the setup wizard
      ├─ holds inventory + credentials
-     └─ drives Ansible playbooks directly
+     └─ drives Ansible vedicon_playbook directly
              │
              ▼
   [ Proxmox VE cluster ]
   VMs, LXC, networks
 ```
 
-Both paths converge on the same Proxmox infrastructure and Ansible playbooks — the web UI simply adds a visual layer and a managed API on top.
+Both paths converge on the same Proxmox infrastructure and Ansible vedicon_playbook — the web UI simply adds a visual layer and a managed API on top.
 
 The **deployer-cli** is your local machine by default, or a dedicated pivot VM if you manage multiple Proxmox infrastructures from one place.
 
@@ -125,7 +125,7 @@ Only the vulnerable hosts group is required - admin and student groups are optio
 
 ## The stack
 
-In its recommended configuration, range42 relies on:
+In its recommended configuration, vedicon relies on:
 
 - **Proxmox** - hypervisor for virtual machines (mandatory)
 - **Ansible** - provisioning and orchestration (mandatory)
@@ -140,7 +140,7 @@ The goal is to cover the full spectrum of cyber training. Here's where the proje
 
 **Status legend:** **shipping** = production-tested · **early** = working, content to grow · **partial** = code in place, currently disabled · **planned** = on the roadmap
 
-| Use case | Status | What range42 brings |
+| Use case | Status | What vedicon brings |
 |----------|--------|---------------------|
 | **Network labs** | shipping | Empty multi-subnet bases (`blank_scenario_2/4/6_subnets`) ready for you to install your own workloads on top |
 | **Defensive training** | shipping | Wazuh-instrumented infrastructure via `demo_lab`, ready for detection-engineering and rule-tuning exercises |
@@ -151,24 +151,24 @@ The goal is to cover the full spectrum of cyber training. Here's where the proje
 
 ## Extend the scenarios
 
-All deployable scenarios live in [range42-playbooks/scenarios](https://github.com/range42/range42-playbooks/tree/main/scenarios) - the list will grow over time.
+All deployable scenarios live in [vedicon-vedicon_playbook/scenarios](https://github.com/vedicon/vedicon_cyber_range_platform-vedicon_playbook/tree/main/scenarios) - the list will grow over time.
 
-The reusable building blocks (CVEs, misconfigured services, product setups, Ansible roles) live in the [range42-catalog](https://github.com/range42/range42-catalog) repository.
+The reusable building blocks (CVEs, misconfigured services, product setups, Ansible roles) live in the [vedicon-catalog](https://github.com/vedicon/vedicon_cyber_range_platform-catalog) repository.
 
-**Want a specific product, CVE or misconfiguration added?** Open an issue on the [range42-catalog](https://github.com/range42/range42-catalog/issues) repo - we centralise catalog requests there.
+**Want a specific product, CVE or misconfiguration added?** Open an issue on the [vedicon-catalog](https://github.com/vedicon/vedicon_cyber_range_platform-catalog/issues) repo - we centralise catalog requests there.
 
-**Found a bug or have a feature request for range42 itself?** Open an issue on the [range42](https://github.com/range42/range42/issues) repo (anything not related to the catalog goes here).
+**Found a bug or have a feature request for vedicon itself?** Open an issue on the [vedicon](https://github.com/vedicon/vedicon_cyber_range_platform/issues) repo (anything not related to the catalog goes here).
 
 We'll prioritise as fast as we can.
 
 ## Glossary
 
 See [GLOSSARY.md](GLOSSARY.md) for all terminology: codename, scenario, workspace,
-deployer-cli, jump host, vault, context, range42-context, host groups, inventory.
+deployer-cli, jump host, vault, context, vedicon-context, host groups, inventory.
 
 ## Authors
 
-range42 is built and maintained by:
+vedicon is built and maintained by:
 
 | Name | Company / Affiliation | Website |
 |------|----------------------|---------|

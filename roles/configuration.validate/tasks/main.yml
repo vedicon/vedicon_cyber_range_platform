@@ -24,7 +24,7 @@
 
       Or run the wizard:
 
-        python3 range42-init.py
+        python3 vedicon-init.py
 
       #### #### #### #### #### #### #### #### #### #### ####
     quiet: true
@@ -76,12 +76,12 @@
       MISSING SCENARIO TEMPLATES: {{ SCENARIO_TEMPLATES_DIR }}
 
       The scenario templates directory is empty or does not exist.
-      This usually means the range42-playbooks sibling repo is missing.
+      This usually means the vedicon-vedicon_playbook sibling repo is missing.
 
-      Clone it alongside the range42 repo:
+      Clone it alongside the vedicon repo:
 
         cd {{ playbook_dir }}/../../..
-        git clone https://github.com/range42/range42-playbooks.git
+        git clone https://github.com/vedicon/vedicon_cyber_range_platform-vedicon_playbook.git
 
       #### #### #### #### #### #### #### #### #### #### ####
     quiet: true

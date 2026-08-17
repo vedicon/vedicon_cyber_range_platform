@@ -1,6 +1,6 @@
 # GLOSSARY
 
-Terms used throughout the range42 project.
+Terms used throughout the vedicon project.
 
 ---
 
@@ -27,39 +27,39 @@ is an independent workspace with its own credentials, config, and secrets.
 
 ### CODENAME-SCENARIO
 
-The fundamental unit of range42. Everything is organized by this pair:
+The fundamental unit of vedicon. Everything is organized by this pair:
 
 ```
-~/range42.config/hv-lab-01-demo_lab/          — workspace
-~/.ssh/range42/hv-lab-01-demo_lab/            — SSH keys
-~/.ssh/config_range42-hv-lab-01-demo_lab      — SSH config
+~/vedicon.config/hv-lab-01-demo_lab/          — workspace
+~/.ssh/vedicon/hv-lab-01-demo_lab/            — SSH keys
+~/.ssh/config_vedicon-hv-lab-01-demo_lab      — SSH config
 ```
 
 ### Workspace
 
-A directory at `~/range42.config/CODENAME-SCENARIO/` on the deployer-cli.
+A directory at `~/vedicon.config/CODENAME-SCENARIO/` on the deployer-cli.
 Contains everything specific to one deployment:
 
 ```
-~/range42.config/CODENAME-SCENARIO/
+~/vedicon.config/CODENAME-SCENARIO/
 ├── inventory/          — Ansible inventory for this lab
 ├── ssh_keys/           — backup of all SSH keys
 ├── secrets/            — encrypted vault + vault password
 ├── bin/                — utility scripts
-├── sourced_range42.sh  — environment variables
-└── scenario            — symlink to the scenario playbooks
+├── sourced_vedicon.sh  — environment variables
+└── scenario            — symlink to the scenario vedicon_playbook
 ```
 
 ### Deployer-CLI
 
-The machine where you run Ansible playbooks and manage the lab.
+The machine where you run Ansible vedicon_playbook and manage the lab.
 Can be your laptop, a dedicated VM, or any Linux machine with SSH access
 to the Proxmox server.
 
 The deployer-cli holds:
-- `~/range42/` — git repos (shared across all workspaces)
-- `~/range42.config/` — workspaces (one per CODENAME-SCENARIO)
-- `~/.ssh/range42/` — SSH keys (one set per CODENAME-SCENARIO)
+- `~/vedicon/` — git repos (shared across all workspaces)
+- `~/vedicon.config/` — workspaces (one per CODENAME-SCENARIO)
+- `~/.ssh/vedicon/` — SSH keys (one set per CODENAME-SCENARIO)
 
 ### Jump host
 
@@ -92,9 +92,9 @@ at a time. Switching context changes:
 - which vault password file is used
 - the zsh prompt shows the active context in green
 
-Switch with: `range42-context use <codename> <scenario>`
+Switch with: `vedicon-context use <codename> <scenario>`
 
-### range42-context
+### vedicon-context
 
 A zsh function available on the deployer-cli. Central tool for managing workspaces.
 
@@ -102,73 +102,73 @@ A zsh function available on the deployer-cli. Central tool for managing workspac
 
 | Command | What it does |
 |---------|-------------|
-| `range42-context list` | list all available workspaces |
-| `range42-context current` | show the active workspace |
-| `range42-context use <codename> <scenario>` | switch to a workspace |
-| `range42-context status` | health check (vault, SSH keys, inventory, symlinks) |
-| `range42-context init` | launch the setup wizard from anywhere |
+| `vedicon-context list` | list all available workspaces |
+| `vedicon-context current` | show the active workspace |
+| `vedicon-context use <codename> <scenario>` | switch to a workspace |
+| `vedicon-context status` | health check (vault, SSH keys, inventory, symlinks) |
+| `vedicon-context init` | launch the setup wizard from anywhere |
 
 **Navigation:**
 
 | Command | What it does |
 |---------|-------------|
-| `range42-context cd config` | go to workspace config directory |
-| `range42-context cd scenario` | go to scenario playbooks directory |
-| `range42-context cd secrets` | go to vault/secrets directory |
+| `vedicon-context cd config` | go to workspace config directory |
+| `vedicon-context cd scenario` | go to scenario vedicon_playbook directory |
+| `vedicon-context cd secrets` | go to vault/secrets directory |
 
 **Operations:**
 
 | Command | What it does |
 |---------|-------------|
-| `range42-context deploy` | run full scenario setup (templates + VMs) |
-| `range42-context deploy-vms` | deploy VMs only (skip template download, faster) |
-| `range42-context delete` | delete all scenario VMs + templates |
-| `range42-context delete-vms` | delete VMs only (keep templates for fast redeploy) |
-| `range42-context reset` | delete + recreate all VMs |
-| `range42-context ssh-reload` | reload SSH keys for the active workspace |
+| `vedicon-context deploy` | run full scenario setup (templates + VMs) |
+| `vedicon-context deploy-vms` | deploy VMs only (skip template download, faster) |
+| `vedicon-context delete` | delete all scenario VMs + templates |
+| `vedicon-context delete-vms` | delete VMs only (keep templates for fast redeploy) |
+| `vedicon-context reset` | delete + recreate all VMs |
+| `vedicon-context ssh-reload` | reload SSH keys for the active workspace |
 
 **Info:**
 
 | Command | What it does |
 |---------|-------------|
-| `range42-context show-vault` | show ansible vault contents (decrypted on the fly) |
-| `range42-context show-config` | show workspace orientation (paths + SSH hosts) |
-| `range42-context show-inventory` | show the Ansible inventory tree |
-| `range42-context ssh <pattern>` | quick SSH to a VM by partial name (e.g. `ssh wazuh`) |
-| `range42-context help` | show all commands |
+| `vedicon-context show-vault` | show ansible vault contents (decrypted on the fly) |
+| `vedicon-context show-config` | show workspace orientation (paths + SSH hosts) |
+| `vedicon-context show-inventory` | show the Ansible inventory tree |
+| `vedicon-context ssh <pattern>` | quick SSH to a VM by partial name (e.g. `ssh wazuh`) |
+| `vedicon-context help` | show all commands |
 
 **Catalog testing:**
 
 Fast-iteration mode for deploying a single catalog element on a disposable
 VM (the `catalog_try` scenario) without rebuilding a full lab. See
-[range42-catalog](https://github.com/range42/range42-catalog) for the
+[vedicon-catalog](https://github.com/vedicon/vedicon_cyber_range_platform-catalog) for the
 available elements.
 
 | Command | What it does |
 |---------|-------------|
-| `range42-context catalog-try <path>` | deploy + smoke-check a single catalog element on the `catalog_try` VM (e.g. `catalog-try docker/_ctf/hello`) |
-| `range42-context catalog-try-list` | list catalog elements deployable via `catalog-try` (excludes `docker/admin/*` by default) |
-| `range42-context catalog-try-list-admin` | list only the admin catalog elements (`docker/admin/*`) |
+| `vedicon-context catalog-try <path>` | deploy + smoke-check a single catalog element on the `catalog_try` VM (e.g. `catalog-try docker/_ctf/hello`) |
+| `vedicon-context catalog-try-list` | list catalog elements deployable via `catalog-try` (excludes `docker/admin/*` by default) |
+| `vedicon-context catalog-try-list-admin` | list only the admin catalog elements (`docker/admin/*`) |
 
-### range42-workspace
+### vedicon-workspace
 
 A zsh function for exporting/importing workspaces between machines.
 
 | Command | What it does |
 |---------|-------------|
-| `range42-workspace export` | create a portable archive of the active workspace |
-| `range42-workspace import <file>` | import a workspace from an archive |
+| `vedicon-workspace export` | create a portable archive of the active workspace |
+| `vedicon-workspace import <file>` | import a workspace from an archive |
 
-### range42-init.py
+### vedicon-init.py
 
 Interactive setup wizard (Python/Textual TUI). Creates an inventory with
 your Proxmox settings and optionally runs the full deployment automatically.
 Requires: `pip install --user textual` (not `apt install python3-textual`, version too old)
 
-First time: `python3 range42-init.py`
-After first deployment: `range42-context init` (shortcut, available once tools are deployed)
+First time: `python3 vedicon-init.py`
+After first deployment: `vedicon-context init` (shortcut, available once tools are deployed)
 
-Run with: `python3 range42-init.py` or `range42-context init`
+Run with: `python3 vedicon-init.py` or `vedicon-context init`
 
 ### Host groups
 
@@ -182,11 +182,11 @@ VMs in a scenario are organized in groups:
 
 ### Inventory
 
-Two types of inventory in range42:
+Two types of inventory in vedicon:
 
 1. **Bootstrapping inventory** (`inventories/<your-infra>/hosts.yml`) — defines the
-   Proxmox server and deployer-cli. Used by playbooks 01-03 and the wizard.
+   Proxmox server and deployer-cli. Used by vedicon_playbook 01-03 and the wizard.
 
-2. **Scenario inventory** (`~/range42.config/CODENAME-SCENARIO/inventory/inventory_default.yml`)
-   — defines the lab VMs (admin, student, vuln groups). Used by the scenario playbooks
+2. **Scenario inventory** (`~/vedicon.config/CODENAME-SCENARIO/inventory/inventory_default.yml`)
+   — defines the lab VMs (admin, student, vuln groups). Used by the scenario vedicon_playbook
    on the deployer-cli.

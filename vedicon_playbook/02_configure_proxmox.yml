@@ -6,7 +6,7 @@
 # Requires: 01_generate_credentials.yml completed (SSH keys exist).
 #
 # Usage:
-#   ansible-playbook playbooks/02_configure_proxmox.yml \
+#   ansible-playbook vedicon_playbook/02_configure_proxmox.yml \
 #     -i inventories/<your-codename>/hosts.yml \
 #     -e INFRASTRUCTURE_SCENARIO=demo_lab
 #

@@ -1,7 +1,7 @@
 ---
 # deployer bootstrap - configure apt proxy on the deployer-cli (optional)
 #
-# Sets /etc/apt/apt.conf.d/00range42-proxy if apt_proxy_url is non-empty.
+# Sets /etc/apt/apt.conf.d/00vedicon-proxy if apt_proxy_url is non-empty.
 # Removes it otherwise (idempotent, supports unsetting).
 #
 # Must run BEFORE 01_packages.yml so apt-get installs use the proxy.
@@ -10,7 +10,7 @@
   ansible.builtin.copy:
     content: |
       Acquire::http::Proxy "{{ apt_proxy_url }}";
-    dest: /etc/apt/apt.conf.d/00range42-proxy
+    dest: /etc/apt/apt.conf.d/00vedicon-proxy
     owner: root
     group: root
     mode: "0644"
@@ -22,7 +22,7 @@
 
 - name: DEPLOYER BOOTSTRAP - REMOVE APT PROXY (apt_proxy_url is empty/unset)
   ansible.builtin.file:
-    path: /etc/apt/apt.conf.d/00range42-proxy
+    path: /etc/apt/apt.conf.d/00vedicon-proxy
     state: absent
   when: apt_proxy_url is not defined or (apt_proxy_url | length) == 0
   become: true

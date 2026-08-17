@@ -1,7 +1,7 @@
 ---
-# workspace ssh-config - generate range42 ssh config from template
+# workspace ssh-config - generate vedicon ssh config from template
 #
-# produces ~/.ssh/config_range42-CODENAME-SCENARIO
+# produces ~/.ssh/config_vedicon-CODENAME-SCENARIO
 # contains all Host entries for this infrastructure (proxmox, jump, admin, student, vuln, init)
 #
 # fixes included in the template:
@@ -10,10 +10,10 @@
 #
 # source: configure.deployer-cli/tasks/04_ssh_client.yml (lines 85-91)
 
-- name: WORKSPACE SSH-CONFIG - GENERATE RANGE42 SSH CONFIG FROM TEMPLATE
+- name: WORKSPACE SSH-CONFIG - GENERATE vedicon SSH CONFIG FROM TEMPLATE
   ansible.builtin.template:
     src: "{{ SCENARIO_TEMPLATES_DIR }}/ssh-config.j2"
-    dest: "{{ DEPLOYER_CLI__DST_SSH_CONFIG_RANGE42_FILE }}"
+    dest: "{{ DEPLOYER_CLI__DST_SSH_CONFIG_vedicon_FILE }}"
     owner: "{{ DEPLOYER_CLI_USER }}"
     group: "{{ DEPLOYER_CLI_USER }}"
     mode: "0600"
